@@ -127,7 +127,7 @@ defmodule Beamchmark.SchedulerInfo do
         -100
 
       true ->
-        100 - base_percent / new_percent * 100
+        new_percent / base_percent * 100 - 100
     end
   end
 end
