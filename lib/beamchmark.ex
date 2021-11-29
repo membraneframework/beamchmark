@@ -3,6 +3,31 @@ defmodule Beamchmark do
   Top level module providing `Beamchmark.run` API.
 
   `#{inspect(__MODULE__)}` measures EVM performance while it is running user `#{inspect(__MODULE__)}.Scenario`.
+
+  # Metrics being measured
+
+  ## Scheduler Utilization
+
+  At the moment, the main interest of `#{inspect(__MODULE__)}` is scheduler utilization which tells
+  how much given scheduler was busy.
+  Scheduler is busy when:
+  * Executing process code
+  * Executing linked-in driver or NIF code
+  * Executing BIFs, or any other runtime handling
+  * Garbage collecting
+  * Handling any other memory management
+
+  Scheduler utilization is measured using Erlang's [`:scheduler`](`:scheduler`) module which uses `:erlang.statistics/1`
+  under the hood and it is represented as a floating point value between 0.0 and 1.0 and percent. 
+
+  `#{inspect(__MODULE__)}` measures following types of scheduler utilization:
+  * normal/cpu/io - average utilization of single scheduler of given type
+  * total normal/cpu/io - average utilization of all schedulers of given type. E.g total normal equals 1.0 when
+  each of normal schedulers have been acive all the time
+  * total - average utilization of all schedulers
+  * weighted - average utilization of all schedulers weighted against maximum amount of available CPU time
+
+  For more information please refer to `:erlang.statistics/1` (under `:scheduler_wall_time`) or `:scheduler.utilization/1`.
   """
 
   @typedoc """
@@ -59,7 +84,7 @@ defmodule Beamchmark do
     out = Path.join(new_dir, @results_file_name)
     results = :erlang.term_to_binary(results)
     File.write!(out, results)
-    :noop
+    :ok
   end
 
   defp print(new, base_dir) do
@@ -67,7 +92,8 @@ defmodule Beamchmark do
 
     base =
       if File.exists?(base_dir) do
-        File.read!(Path.join(base_dir, @results_file_name))
+        Path.join(base_dir, @results_file_name)
+        |> File.read!()
         |> :erlang.binary_to_term()
       end
 

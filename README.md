@@ -5,6 +5,9 @@
 
 Tool for measuring EVM performance.
 
+At the moment, the main interest of Beamchmark is scheduler utilization.
+For more information please refer to API docs.
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
