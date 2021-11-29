@@ -18,7 +18,7 @@ defmodule Beamchmark do
   * Handling any other memory management
 
   Scheduler utilization is measured using Erlang's [`:scheduler`](`:scheduler`) module which uses `:erlang.statistics/1`
-  under the hood and it is represented as a floating point value between 0.0 and 1.0 and percent. 
+  under the hood and it is represented as a floating point value between 0.0 and 1.0 and percent.
 
   `#{inspect(__MODULE__)}` measures following types of scheduler utilization:
   * normal/cpu/io - average utilization of single scheduler of given type
@@ -28,6 +28,12 @@ defmodule Beamchmark do
   * weighted - average utilization of all schedulers weighted against maximum amount of available CPU time
 
   For more information please refer to `:erlang.statistics/1` (under `:scheduler_wall_time`) or `:scheduler.utilization/1`.
+
+  ## Other
+
+  Other metrics being measured:
+  * reductions - total reductions number
+  * context switches - total context switches number
   """
 
   @typedoc """
@@ -46,7 +52,7 @@ defmodule Beamchmark do
   @results_file_name "results"
 
   @doc """
-  Runs scenario and benchmarks EVM performance. 
+  Runs scenario and benchmarks EVM performance.
 
   Subsequent invocation of this function will also compare results with the previous ones.
   """
@@ -74,9 +80,7 @@ defmodule Beamchmark do
 
   defp bench(opts) do
     Mix.shell().info("Benching")
-
-    :scheduler.utilization(opts[:duration] || 60)
-    |> Beamchmark.SchedulerInfo.from_sched_util_result()
+    Beamchmark.BEAMInfo.gather(opts[:duration] || 60)
   end
 
   defp save(results, new_dir) do
@@ -105,10 +109,10 @@ defmodule Beamchmark do
       """
       |> Mix.shell().info()
 
-      Mix.shell().info(format(base))
+      Mix.shell().info(Beamchmark.BEAMInfo.format(base))
     end
 
-    diff = if base, do: Beamchmark.SchedulerInfo.scheduler_info_diff(base, new)
+    diff = if base, do: Beamchmark.BEAMInfo.diff(base, new)
 
     """
     ================
@@ -117,7 +121,7 @@ defmodule Beamchmark do
     """
     |> Mix.shell().info()
 
-    Mix.shell().info(format(new, diff))
+    Mix.shell().info(Beamchmark.BEAMInfo.format(new, diff))
   end
 
   defp print_system_info() do
@@ -133,92 +137,5 @@ defmodule Beamchmark do
     """
 
     Mix.shell().info(info)
-  end
-
-  defp format(scheduler_info) do
-    format(scheduler_info, nil)
-  end
-
-  defp format(scheduler_info, nil) do
-    """
-    Normal schedulers
-    --------------------
-    #{format_sched_usage(scheduler_info.normal)} 
-    Total: #{format_sched_usage(scheduler_info.total_normal)}
-
-    CPU schedulers
-    --------------------
-    #{format_sched_usage(scheduler_info.cpu)} 
-    Total: #{format_sched_usage(scheduler_info.total_cpu)}
-
-    IO schedulers
-    --------------------
-    #{format_sched_usage(scheduler_info.io)} 
-    Total: #{format_sched_usage(scheduler_info.total_io)}
-
-    Weighted
-    --------------------
-    #{format_sched_usage(scheduler_info.weighted)}
-    """
-  end
-
-  defp format(scheduler_info, scheduler_info_diff) do
-    """
-    Normal schedulers
-    --------------------
-    #{format_sched_usage(scheduler_info.normal, scheduler_info_diff.normal)} 
-    Total: #{format_sched_usage(scheduler_info.total_normal, scheduler_info_diff.total_normal)} 
-
-    CPU schedulers
-    --------------------
-    #{format_sched_usage(scheduler_info.cpu, scheduler_info_diff.cpu)} 
-    Total: #{format_sched_usage(scheduler_info.total_cpu, scheduler_info_diff.total_cpu)}
-
-    IO schedulers
-    --------------------
-    #{format_sched_usage(scheduler_info.io, scheduler_info_diff.io)} 
-    Total: #{format_sched_usage(scheduler_info.total_io, scheduler_info_diff.total_io)}
-
-    Weighted
-    --------------------
-    #{format_sched_usage(scheduler_info.weighted, scheduler_info_diff.weighted)}
-    """
-  end
-
-  defp format_sched_usage(sched_usage), do: format_sched_usage(sched_usage, nil)
-
-  defp format_sched_usage(sched_usage, nil) when is_map(sched_usage) do
-    Enum.map(sched_usage, fn {sched_id, {util, percent}} ->
-      "#{sched_id} #{util} #{percent}%\n"
-    end)
-  end
-
-  defp format_sched_usage(sched_usage, sched_usage_diff)
-       when is_map(sched_usage) and is_map(sched_usage_diff) do
-    Enum.map(sched_usage, fn {sched_id, {util, percent}} ->
-      {util_diff, percent_diff} = Map.get(sched_usage_diff, sched_id)
-      color = get_color(percent_diff)
-
-      "#{sched_id} #{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}\n"
-    end)
-  end
-
-  # clauses for total and weighted usage
-  defp format_sched_usage({util, percent}, nil) do
-    "#{util} #{percent}%\n"
-  end
-
-  defp format_sched_usage({util, percent}, {util_diff, percent_diff}) do
-    color = get_color(util_diff)
-
-    "#{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}\n"
-  end
-
-  defp get_color(diff) do
-    cond do
-      diff < 0 -> IO.ANSI.green()
-      diff == 0 -> IO.ANSI.white()
-      diff > 0 -> IO.ANSI.red()
-    end
   end
 end

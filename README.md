@@ -5,7 +5,7 @@
 
 Tool for measuring EVM performance.
 
-At the moment, the main interest of Beamchmark is scheduler utilization.
+At the moment, the main interest of Beamchmark is scheduler utilization, reductions and context switches number.
 For more information please refer to API docs.
 
 ## Installation
