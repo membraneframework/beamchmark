@@ -145,7 +145,7 @@ defmodule Beamchmark.SchedulerInfo do
 
     Weighted
     --------------------
-    #{do_format(scheduler_info.weighted)}
+    #{do_format(scheduler_info.weighted)}\
     """
   end
 
@@ -168,37 +168,37 @@ defmodule Beamchmark.SchedulerInfo do
 
     Weighted
     --------------------
-    #{do_format(scheduler_info.weighted, scheduler_info_diff.weighted)}
+    #{do_format(scheduler_info.weighted, scheduler_info_diff.weighted)}\
     """
   end
 
   defp do_format(sched_usage), do: do_format(sched_usage, nil)
 
   defp do_format(sched_usage, nil) when is_map(sched_usage) do
-    Enum.map(sched_usage, fn {sched_id, {util, percent}} ->
-      "#{sched_id} #{util} #{percent}%\n"
+    Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
+      "#{sched_id} #{util} #{percent}%"
     end)
   end
 
   defp do_format(sched_usage, sched_usage_diff)
        when is_map(sched_usage) and is_map(sched_usage_diff)
        when is_map(sched_usage) and is_map(sched_usage_diff) do
-    Enum.map(sched_usage, fn {sched_id, {util, percent}} ->
+    Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
       {util_diff, percent_diff} = Map.get(sched_usage_diff, sched_id)
       color = get_color(percent_diff)
 
-      "#{sched_id} #{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}\n"
+      "#{sched_id} #{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
     end)
   end
 
   # clauses for total and weighted usage
   defp do_format({util, percent}, nil) do
-    "#{util} #{percent}%\n"
+    "#{util} #{percent}%"
   end
 
   defp do_format({util, percent}, {util_diff, percent_diff}) do
     color = get_color(util_diff)
 
-    "#{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}\n"
+    "#{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 end

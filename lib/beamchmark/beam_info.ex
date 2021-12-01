@@ -62,7 +62,7 @@ defmodule Beamchmark.BEAMInfo do
 
     Reductions
     --------------------
-    #{do_format(beam_info.reductions)}\
+    #{do_format(beam_info.reductions)}
 
     Context Switches
     --------------------
@@ -76,7 +76,7 @@ defmodule Beamchmark.BEAMInfo do
 
     Reductions
     --------------------
-    #{do_format(beam_info.reductions, beam_info_diff.reductions)}\
+    #{do_format(beam_info.reductions, beam_info_diff.reductions)}
 
     Context Switches
     --------------------
@@ -91,6 +91,6 @@ defmodule Beamchmark.BEAMInfo do
     # old number = number - number_diff
     percent_diff = percent_diff(number - number_diff, number)
 
-    "#{number} #{color} #{number_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}\n"
+    "#{number} #{color} #{number_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 end
