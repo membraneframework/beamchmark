@@ -3,5 +3,5 @@ defmodule Beamchmark.Scenario do
   Scenario to run during benchmarking
   """
 
-  @callback run() :: :noop
+  @callback run() :: :ok
 end

@@ -4,7 +4,7 @@ defmodule AdvancedScenario do
   @impl true
   def run() do
     Enum.map(1..1_000_000, fn i -> Integer.pow(i, 2) end)
-    :noop
+    :ok
   end
 end
 
