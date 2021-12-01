@@ -13,5 +13,7 @@ defmodule BeamchmarkTest do
 
   test "Beamchmark runs properly" do
     assert :ok == Beamchmark.run(TestScenario, duration: 1)
+    # check wheather Beamchmark can read and compare new results with the previous one
+    assert :ok == Beamchmark.run(TestScenario, duration: 1)
   end
 end
