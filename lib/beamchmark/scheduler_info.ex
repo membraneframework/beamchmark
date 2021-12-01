@@ -172,7 +172,7 @@ defmodule Beamchmark.SchedulerInfo do
     """
   end
 
-  defp do_format(sched_usage), do: do_format(sched_usage, nil)
+  defp do_format(metric), do: do_format(metric, nil)
 
   defp do_format(sched_usage, nil) when is_map(sched_usage) do
     Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
@@ -181,7 +181,6 @@ defmodule Beamchmark.SchedulerInfo do
   end
 
   defp do_format(sched_usage, sched_usage_diff)
-       when is_map(sched_usage) and is_map(sched_usage_diff)
        when is_map(sched_usage) and is_map(sched_usage_diff) do
     Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
       {util_diff, percent_diff} = Map.get(sched_usage_diff, sched_id)
