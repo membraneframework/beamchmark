@@ -39,7 +39,7 @@ defmodule Beamchmark do
   @typedoc """
   Configuration for `#{inspect(__MODULE__)}`.
   * duration - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to 60 seconds.
-  * delay - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and befor starting benchmarking.
+  * delay - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking.
   * output_dir - directory where results of benchmarking will be saved.
   """
   @type options_t() :: [
@@ -58,6 +58,8 @@ defmodule Beamchmark do
   """
   @spec run(Beamchmark.Scenario, options_t()) :: :ok
   def run(scenario, opts) do
+    delay = opts[:delay] || 0
+    duration = opts[:duration] || 60
     output_dir = opts[:output_dir] || @default_output_dir
     base_dir = Path.join(output_dir, "base")
     new_dir = Path.join(output_dir, "new")
@@ -69,18 +71,21 @@ defmodule Beamchmark do
 
     Mix.shell().info("Running scenario")
     task = Task.async(fn -> scenario.run() end)
-    Process.sleep(opts[:delay] || 0)
-    results = bench(opts)
+
+    Mix.shell().info("Waiting #{inspect(delay)} seconds")
+    Process.sleep(delay)
+
+    results = bench(duration)
     Task.await(task, :infinity)
+
     print(results, base_dir)
     save(results, new_dir)
-    Mix.shell().info("Results successfully saved to #{inspect(new_dir)} directory")
     :ok
   end
 
-  defp bench(opts) do
-    Mix.shell().info("Benching")
-    Beamchmark.BEAMInfo.gather(opts[:duration] || 60)
+  defp bench(duration) do
+    Mix.shell().info("Benchmarking")
+    Beamchmark.BEAMInfo.gather(duration)
   end
 
   defp save(results, new_dir) do
@@ -88,7 +93,7 @@ defmodule Beamchmark do
     out = Path.join(new_dir, @results_file_name)
     results = :erlang.term_to_binary(results)
     File.write!(out, results)
-    :ok
+    Mix.shell().info("Results successfully saved to #{inspect(new_dir)} directory")
   end
 
   defp print(new, base_dir) do
