@@ -8,6 +8,12 @@ Tool for measuring EVM performance.
 At the moment, the main interest of Beamchmark is scheduler utilization, reductions and context switches number.
 For more information please refer to API docs.
 
+## Beamchmark and Benchee
+Beamchmark should be used when you want to measure BEAM performance while it is runing your application.
+Benchee should be used when you want to benchmark specific function from your code base.
+In particular, Benchee will inform you how long your function is executing while Beamchmark will inform you
+how busy BEAM is.
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
