@@ -58,7 +58,7 @@ defmodule Beamchmark do
   """
   @spec run(Beamchmark.Scenario, options_t()) :: :ok
   def run(scenario, opts) do
-    delay = opts[:delay] || 0
+    delay = :timer.seconds(opts[:delay] || 0)
     duration = opts[:duration] || 60
     output_dir = opts[:output_dir] || @default_output_dir
     base_dir = Path.join(output_dir, "base")
