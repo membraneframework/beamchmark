@@ -36,111 +36,44 @@ defmodule Beamchmark do
   * context switches - total context switches number
   """
 
+  @default_duration 60
+  @default_delay 0
+  @default_formatters [Beamchmark.Formatters.Console]
+  @default_output_dir "/tmp/beamchmark"
+
   @typedoc """
   Configuration for `#{inspect(__MODULE__)}`.
-  * duration - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to 60 seconds.
-  * delay - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking.
-  * output_dir - directory where results of benchmarking will be saved.
+  * duration - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration}` seconds.
+  * delay - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay}` seconds.
+  * formatters - list of formatters that will be applied to the result. Defaults to `#{inspect(@default_formatters)}`
+  * output_dir - directory where results of benchmarking will be saved. Defaults to `#{@default_output_dir}`.
   """
   @type options_t() :: [
           duration: pos_integer(),
           delay: non_neg_integer(),
+          formatters: [Beamchmark.Formatter.t()],
           output_dir: Path.t()
         ]
-
-  @default_output_dir "benchmark"
-  @results_file_name "results"
 
   @doc """
   Runs scenario and benchmarks EVM performance.
 
   Subsequent invocation of this function will also compare results with the previous ones.
   """
-  @spec run(Beamchmark.Scenario, options_t()) :: :ok
+  @spec run(Scenario.t(), options_t()) :: :ok | {:error, String.t()}
   def run(scenario, opts) do
-    delay = :timer.seconds(opts[:delay] || 0)
-    duration = opts[:duration] || 60
-    output_dir = opts[:output_dir] || @default_output_dir
-    base_dir = Path.join(output_dir, "base")
-    new_dir = Path.join(output_dir, "new")
+    config = %Beamchmark.Configuration{
+      delay: opts[:delay] || @default_delay,
+      duration: opts[:duration] || @default_duration,
+      formatters: opts[:formatters] || @default_formatters,
+      output_dir: Path.expand(opts[:output_dir] || @default_output_dir),
+      try_compare?: opts[:try_compare?] || true
+    }
 
-    if File.exists?(new_dir) do
-      File.rm_rf!(base_dir)
-      File.rename!(new_dir, base_dir)
-    end
-
-    Mix.shell().info("Running scenario")
-    task = Task.async(fn -> scenario.run() end)
-
-    Mix.shell().info("Waiting #{inspect(delay)} seconds")
-    Process.sleep(delay)
-
-    results = bench(duration)
-    Task.await(task, :infinity)
-
-    print(results, base_dir)
-    save(results, new_dir)
-    :ok
-  end
-
-  defp bench(duration) do
-    Mix.shell().info("Benchmarking")
-    Beamchmark.BEAMInfo.gather(duration)
-  end
-
-  defp save(results, new_dir) do
-    File.mkdir_p!(new_dir)
-    out = Path.join(new_dir, @results_file_name)
-    results = :erlang.term_to_binary(results)
-    File.write!(out, results)
-    Mix.shell().info("Results successfully saved to #{inspect(new_dir)} directory")
-  end
-
-  defp print(new, base_dir) do
-    print_system_info()
-
-    base =
-      if File.exists?(base_dir) do
-        Path.join(base_dir, @results_file_name)
-        |> File.read!()
-        |> :erlang.binary_to_term()
-      end
-
-    if base do
-      """
-      ================
-      BASE
-      ================
-      """
-      |> Mix.shell().info()
-
-      Mix.shell().info(Beamchmark.BEAMInfo.format(base))
-    end
-
-    diff = if base, do: Beamchmark.BEAMInfo.diff(base, new)
-
-    """
-    ================
-    NEW
-    ================
-    """
-    |> Mix.shell().info()
-
-    Mix.shell().info(Beamchmark.BEAMInfo.format(new, diff))
-  end
-
-  defp print_system_info() do
-    info = """
-
-    ================
-    SYSTEM INFO
-    ================
-
-    System version: #{:erlang.system_info(:system_version)}\
-    System arch: #{:erlang.system_info(:system_architecture)}
-    NIF version: #{:erlang.system_info(:nif_version)}
-    """
-
-    Mix.shell().info(info)
+    scenario
+    |> Beamchmark.Suite.init(config)
+    |> Beamchmark.Suite.run()
+    |> tap(&Beamchmark.Suite.save/1)
+    |> Beamchmark.Formatter.output()
   end
 end
