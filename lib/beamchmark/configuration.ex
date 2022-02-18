@@ -1,5 +1,8 @@
 defmodule Beamchmark.Configuration do
-  @moduledoc false
+  @moduledoc """
+  The module defines a structure used to configure `#{inspect(Beamchmark.Suite)}`. For more information
+  about customizing #{inspect(Beamchmark)}, refer to `t:Beamchmark.options_t/0`.
+  """
 
   alias Beamchmark.Formatter
 

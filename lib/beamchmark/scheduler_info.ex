@@ -1,6 +1,7 @@
 defmodule Beamchmark.SchedulerInfo do
-  @moduledoc false
-  # module representing different statistics about scheduler usage
+  @moduledoc """
+  Module representing different statistics about scheduler usage.
+  """
 
   use Bunch.Access
 

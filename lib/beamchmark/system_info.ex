@@ -1,5 +1,7 @@
 defmodule Beamchmark.SystemInfo do
-  @moduledoc false
+  @moduledoc """
+  The module defines a struct containing various information about system that is used for benchmarking.
+  """
 
   @type t :: %__MODULE__{
           elixir_version: String.t(),

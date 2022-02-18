@@ -1,5 +1,8 @@
 defmodule Beamchmark.Suite do
-  @moduledoc false
+  @moduledoc """
+  The module defines a struct representing a single run of benchmark.
+  It is responsible for benchmarking and saving/loading the results.
+  """
 
   alias Beamchmark.{SystemInfo, Scenario, Measurements, Configuration}
 

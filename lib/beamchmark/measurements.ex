@@ -1,6 +1,7 @@
 defmodule Beamchmark.Measurements do
-  @moduledoc false
-  # module responsible for gathering BEAM statistics and formatting them
+  @moduledoc """
+  The module is responsible for gathering BEAM statistics during benchmarking.
+  """
 
   alias Beamchmark.SchedulerInfo
 

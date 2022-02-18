@@ -1,6 +1,6 @@
 defmodule Beamchmark do
   @moduledoc """
-  Top level module providing `Beamchmark.run` API.
+  Top level module providing `Beamchmark.run/2` API.
 
   `#{inspect(__MODULE__)}` measures EVM performance while it is running user `#{inspect(__MODULE__)}.Scenario`.
 
@@ -38,7 +38,7 @@ defmodule Beamchmark do
 
   @default_duration 60
   @default_delay 0
-  @default_formatters [Beamchmark.Formatters.Console]
+  @default_formatter Beamchmark.Formatters.Console
   @default_output_dir Path.join([System.tmp_dir!(), "beamchmark"])
   @default_try_compare true
 
@@ -46,14 +46,14 @@ defmodule Beamchmark do
   Configuration for `#{inspect(__MODULE__)}`.
   * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration}` seconds.
   * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay}` seconds.
-  * `formatters` - list of formatters that will be applied to the result. Defaults to `#{inspect(@default_formatters)}`
+  * `formatters` - list of formatters that will be applied to the result. By default contains only `#{inspect(@default_formatter)}`.
   * `try_compare?` - boolean indicating whether `#{inspect(__MODULE__)}` should pass previous results to formatters. Defaults to `#{inspect(@default_try_compare)}`
-  * `output_dir` - directory where results of benchmarking will be saved. Defaults to "`beamchmark`" directory under location provided by `#{inspect(&System.tmp_dir/0)}`.
+  * `output_dir` - directory where results of benchmarking will be saved. Defaults to "`beamchmark`" directory under location provided by `System.tmp_dir!/0`.
   """
   @type options_t() :: [
           duration: pos_integer(),
           delay: non_neg_integer(),
-          formatters: [Beamchmark.Formatter.t()],
+          formatters: Beamchmark.Formatter.t() | [Beamchmark.Formatter.t()],
           try_compare?: boolean(),
           output_dir: Path.t()
         ]
@@ -68,7 +68,7 @@ defmodule Beamchmark do
     config = %Beamchmark.Configuration{
       duration: opts[:duration] || @default_duration,
       delay: opts[:delay] || @default_delay,
-      formatters: opts[:formatters] || @default_formatters,
+      formatters: List.wrap(opts[:formatters] || @default_formatter),
       try_compare?: opts[:try_compare?] || @default_try_compare,
       output_dir: Path.expand(opts[:output_dir] || @default_output_dir)
     }

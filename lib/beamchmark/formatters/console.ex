@@ -1,5 +1,7 @@
 defmodule Beamchmark.Formatters.Console do
-  @moduledoc false
+  @moduledoc """
+  The module formats `#{inspect(Beamchmark.Suite)}` and outputs it with `Mix.shell/0`.
+  """
 
   @behaviour Beamchmark.Formatter
 

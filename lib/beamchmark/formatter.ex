@@ -1,8 +1,17 @@
 defmodule Beamchmark.Formatter do
-  @moduledoc false
+  @moduledoc """
+  The module defines a  behaviour that will be used to format and output `#{inspect(Beamchmark.Suite)}`.
+  You can adopt this behaviour to implement custom formatters.
+
+  The module contains helper functions for validating and applying formatters defined in configuration
+  of `#{inspect(Beamchmark.Suite)}`.
+  """
 
   alias Beamchmark.{Suite, Configuration}
 
+  @typedoc """
+  Module implementing `#{inspect(__MODULE__)}` behaviour.
+  """
   @type t :: module()
 
   @typedoc """

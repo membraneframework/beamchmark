@@ -19,7 +19,7 @@ defmodule BeamchmarkTest do
 
   test "Beamchmark runs properly", %{tmp_dir: tmp_dir} do
     assert :ok == Beamchmark.run(TestScenario, duration: 1, output_dir: tmp_dir)
-    # check wheather Beamchmark can read and compare new results with the previous one
+    # check whether Beamchmark can read and compare new results with the previous one
     assert :ok == Beamchmark.run(TestScenario, duration: 1)
   end
 end
