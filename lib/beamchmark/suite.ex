@@ -22,6 +22,9 @@ defmodule Beamchmark.Suite do
   ]
   defstruct @enforce_keys
 
+  @suite_filename "suite"
+  @old_suite_filename "suite_old"
+
   @spec init(Scenario.t(), Configuration.t()) :: t()
   def init(scenario, %Configuration{} = configuration) do
     implements_scenario? =
@@ -30,7 +33,7 @@ defmodule Beamchmark.Suite do
       |> Enum.member?(Scenario)
 
     unless implements_scenario? do
-      raise "#{inspect(scenario)} is not a module implementing #{inspect(Scenario)} behaviour"
+      raise "#{inspect(scenario)} is not a module implementing #{inspect(Scenario)} behaviour."
     end
 
     %__MODULE__{
@@ -43,37 +46,47 @@ defmodule Beamchmark.Suite do
 
   @spec run(t()) :: t()
   def run(%__MODULE__{scenario: scenario, configuration: config} = suite) do
-    # FIXME: how about scenarios that take less than `delay + duration` seconds?
+    # FIXME: what about scenarios that take less than `delay + duration` seconds or run indefinitely?
     Mix.shell().info("Running scenario \"#{inspect(scenario)}\"...")
     task = Task.async(fn -> suite.scenario.run() end)
 
     Mix.shell().info("Waiting #{inspect(config.delay)} seconds...")
     Process.sleep(:timer.seconds(config.delay))
 
-    Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...\n")
+    Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
     measurements = Measurements.gather(config.duration)
 
-    :ok = Task.await(task, :infinity)
+    case Task.await(task, :infinity) do
+      :ok ->
+        %__MODULE__{suite | measurements: measurements}
 
-    %__MODULE__{suite | measurements: measurements}
+      {:error, reason} ->
+        raise "The scenario failed due to #{inspect(reason)}."
+
+      value ->
+        raise "Invalid return value from scenario: #{inspect(value)}. Expected output is ether `:ok` or `{:error, reason}`."
+    end
   end
 
   @spec save(t()) :: :ok
   def save(%__MODULE__{configuration: config} = suite) do
-    output_file = Path.join([config.output_dir, "suite"])
+    File.mkdir_p!(config.output_dir)
 
-    if File.exists?(output_file) do
-      File.rename!(output_file, Path.join([config.output_dir, "suite_old"]))
+    new_path = Path.join([config.output_dir, @suite_filename])
+    old_path = Path.join([config.output_dir, @old_suite_filename])
+
+    if File.exists?(new_path) do
+      File.rename!(new_path, old_path)
     end
 
-    File.mkdir_p(config.output_dir)
+    File.write!(new_path, :erlang.term_to_binary(suite))
 
-    File.write!(output_file, :erlang.term_to_binary(suite))
+    Mix.shell().info("Results successfully saved to #{inspect(config.output_dir)} directory.")
   end
 
   @spec try_load_base(t()) :: {:ok, t()} | {:error, File.posix()}
   def try_load_base(%__MODULE__{configuration: config}) do
-    with old_path <- Path.join([config.output_dir, "suite_old"]),
+    with old_path <- Path.join([config.output_dir, @old_suite_filename]),
          {:ok, suite} <- File.read(old_path),
          suite <- :erlang.binary_to_term(suite) do
       {:ok, suite}

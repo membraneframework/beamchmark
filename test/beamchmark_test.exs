@@ -12,14 +12,15 @@ defmodule BeamchmarkTest do
   end
 
   setup do
-    tmp_dir = Path.join([System.tmp_dir!(), "beamchmark_test"])
-    on_exit(fn -> File.rm_rf!(tmp_dir) end)
-    [tmp_dir: tmp_dir]
+    temp_directory = Path.join([System.tmp_dir!(), "beamchmark_test"])
+    on_exit(fn -> File.rm_rf!(temp_directory) end)
+    options = [delay: 0, duration: 1, output_dir: temp_directory, compare?: true]
+    [options: options]
   end
 
-  test "Beamchmark runs properly", %{tmp_dir: tmp_dir} do
-    assert :ok == Beamchmark.run(TestScenario, duration: 1, output_dir: tmp_dir)
+  test "Beamchmark runs properly", %{options: options} do
+    assert :ok == Beamchmark.run(TestScenario, options)
     # check whether Beamchmark can read and compare new results with the previous one
-    assert :ok == Beamchmark.run(TestScenario, duration: 1)
+    assert :ok == Beamchmark.run(TestScenario, options)
   end
 end

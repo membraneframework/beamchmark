@@ -34,13 +34,13 @@ defmodule Beamchmark.Formatter do
   @doc """
   Takes the return value of `format/1` or `format/2` and outputs it in a convenient form (stdout, file, UI...).
   """
-  @callback write(any, options_t) :: :ok | {:error, String.t()}
+  @callback write(any, options_t) :: :ok
 
   @doc """
   Takes the suite and uses its formatters to output it. If the suite was configured with `compare?` flag enabled,
   the previous suite will be also provided to the formatters.
   """
-  @spec output(Suite.t()) :: :ok | {:error, String.t()}
+  @spec output(Suite.t()) :: :ok
   def output(%Suite{} = suite) do
     with true <- suite.configuration.compare?,
          {:ok, base_suite} <- Suite.try_load_base(suite) do

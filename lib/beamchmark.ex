@@ -63,20 +63,22 @@ defmodule Beamchmark do
 
   Subsequent invocation of this function will also compare results with the previous ones.
   """
-  @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok | {:error, String.t()}
+  @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok
   def run(scenario, opts) do
     config = %Beamchmark.Suite.Configuration{
-      duration: opts[:duration] || @default_duration,
-      delay: opts[:delay] || @default_delay,
-      formatters: opts[:formatters] || [@default_formatter],
-      compare?: opts[:compare?] || @default_compare,
-      output_dir: Path.expand(opts[:output_dir] || @default_output_dir)
+      duration: Keyword.get(opts, :duration, @default_duration),
+      delay: Keyword.get(opts, :delay, @default_delay),
+      formatters: Keyword.get(opts, :formatters, [@default_formatter]),
+      compare?: Keyword.get(opts, :compare?, @default_compare),
+      output_dir: Keyword.get(opts, :output_dir, @default_output_dir) |> Path.expand()
     }
 
     scenario
     |> Beamchmark.Suite.init(config)
     |> Beamchmark.Suite.run()
-    |> tap(&Beamchmark.Suite.save/1)
-    |> Beamchmark.Formatter.output()
+    |> tap(fn suite -> :ok = Beamchmark.Suite.save(suite) end)
+    |> tap(fn suite -> :ok = Beamchmark.Formatter.output(suite) end)
+
+    :ok
   end
 end
