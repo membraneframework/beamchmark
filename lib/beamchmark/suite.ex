@@ -46,7 +46,7 @@ defmodule Beamchmark.Suite do
 
   @spec run(t()) :: t()
   def run(%__MODULE__{scenario: scenario, configuration: config} = suite) do
-    # FIXME: what about scenarios that take less than `delay + duration` seconds or run indefinitely?
+    # TODO: what about scenarios that take less than `delay + duration` seconds or run indefinitely?
     Mix.shell().info("Running scenario \"#{inspect(scenario)}\"...")
     task = Task.async(fn -> suite.scenario.run() end)
 
