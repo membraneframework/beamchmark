@@ -9,7 +9,7 @@ defmodule Beamchmark.Scenario do
   @type t :: module()
 
   @doc """
-  The function that will be called during benchmarking. Should return `:ok` on successful completion.
+  The function that will be called during benchmarking.
   """
-  @callback run() :: :ok
+  @callback run() :: :ok | {:error, any()}
 end
