@@ -4,10 +4,11 @@ defmodule Beamchmark.Suite do
   It is responsible for benchmarking and saving/loading the results.
   """
 
-  alias Beamchmark.{SystemInfo, Scenario, Measurements, Configuration}
+  alias Beamchmark.Scenario
+  alias __MODULE__.{Configuration, SystemInfo, Measurements}
 
   @type t :: %__MODULE__{
-          scenario: atom(),
+          scenario: Scenario.t(),
           configuration: Configuration.t(),
           system_info: SystemInfo.t(),
           measurements: Measurements.t() | nil
@@ -42,6 +43,7 @@ defmodule Beamchmark.Suite do
 
   @spec run(t()) :: t()
   def run(%__MODULE__{scenario: scenario, configuration: config} = suite) do
+    # FIXME: how about scenarios that take less than `delay + duration` seconds?
     Mix.shell().info("Running scenario \"#{inspect(scenario)}\"...")
     task = Task.async(fn -> suite.scenario.run() end)
 

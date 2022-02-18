@@ -1,6 +1,6 @@
 defmodule Beamchmark.Math do
   @moduledoc """
-  The module contains math utility functions.
+  The module contains helper math types and utility functions.
   """
 
   @typedoc """

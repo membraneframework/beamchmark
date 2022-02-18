@@ -1,4 +1,4 @@
-defmodule Beamchmark.SystemInfo do
+defmodule Beamchmark.Suite.SystemInfo do
   @moduledoc """
   The module defines a struct containing various information about system that is used for benchmarking.
   """
@@ -15,7 +15,7 @@ defmodule Beamchmark.SystemInfo do
   @enforce_keys [:elixir_version, :otp_version, :nif_version, :os, :arch, :num_cores]
   defstruct @enforce_keys
 
-  @spec init :: Beamchmark.SystemInfo.t()
+  @spec init :: t()
   def init() do
     %__MODULE__{
       elixir_version: System.version(),

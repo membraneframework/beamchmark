@@ -40,21 +40,21 @@ defmodule Beamchmark do
   @default_delay 0
   @default_formatter Beamchmark.Formatters.Console
   @default_output_dir Path.join([System.tmp_dir!(), "beamchmark"])
-  @default_try_compare true
+  @default_compare true
 
   @typedoc """
   Configuration for `#{inspect(__MODULE__)}`.
   * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration}` seconds.
   * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay}` seconds.
   * `formatters` - list of formatters that will be applied to the result. By default contains only `#{inspect(@default_formatter)}`.
-  * `try_compare?` - boolean indicating whether `#{inspect(__MODULE__)}` should pass previous results to formatters. Defaults to `#{inspect(@default_try_compare)}`
+  * `compare?` - boolean indicating whether `#{inspect(__MODULE__)}` should pass previous results to formatters. Defaults to `#{inspect(@default_compare)}`
   * `output_dir` - directory where results of benchmarking will be saved. Defaults to "`beamchmark`" directory under location provided by `System.tmp_dir!/0`.
   """
   @type options_t() :: [
           duration: pos_integer(),
           delay: non_neg_integer(),
-          formatters: Beamchmark.Formatter.t() | [Beamchmark.Formatter.t()],
-          try_compare?: boolean(),
+          formatters: [Beamchmark.Formatter.t()],
+          compare?: boolean(),
           output_dir: Path.t()
         ]
 
@@ -65,11 +65,11 @@ defmodule Beamchmark do
   """
   @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok | {:error, String.t()}
   def run(scenario, opts) do
-    config = %Beamchmark.Configuration{
+    config = %Beamchmark.Suite.Configuration{
       duration: opts[:duration] || @default_duration,
       delay: opts[:delay] || @default_delay,
-      formatters: List.wrap(opts[:formatters] || @default_formatter),
-      try_compare?: opts[:try_compare?] || @default_try_compare,
+      formatters: opts[:formatters] || [@default_formatter],
+      compare?: opts[:compare?] || @default_compare,
       output_dir: Path.expand(opts[:output_dir] || @default_output_dir)
     }
 

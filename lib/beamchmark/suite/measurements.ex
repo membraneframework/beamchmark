@@ -1,9 +1,9 @@
-defmodule Beamchmark.Measurements do
+defmodule Beamchmark.Suite.Measurements do
   @moduledoc """
   The module is responsible for gathering BEAM statistics during benchmarking.
   """
 
-  alias Beamchmark.SchedulerInfo
+  alias __MODULE__.SchedulerInfo
 
   @type reductions_t() :: non_neg_integer()
   @type context_switches_t() :: non_neg_integer()
@@ -21,7 +21,7 @@ defmodule Beamchmark.Measurements do
   ]
   defstruct @enforce_keys
 
-  @spec gather(timeout()) :: %__MODULE__{}
+  @spec gather(timeout()) :: t()
   def gather(duration) do
     scheduler_info =
       :scheduler.utilization(duration)

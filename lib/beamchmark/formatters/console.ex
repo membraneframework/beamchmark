@@ -5,7 +5,8 @@ defmodule Beamchmark.Formatters.Console do
 
   @behaviour Beamchmark.Formatter
 
-  alias Beamchmark.{Suite, Configuration, Measurements, SchedulerInfo, SystemInfo, Math}
+  alias Beamchmark.{Suite, Math}
+  alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
 
   @impl true
   def format(%Suite{} = suite, _options) do
@@ -82,7 +83,7 @@ defmodule Beamchmark.Formatters.Console do
     """
   end
 
-  defp format_scheduler_info(%SchedulerInfo{} = scheduler_info) do
+  defp format_scheduler_info(%Measurements.SchedulerInfo{} = scheduler_info) do
     """
     #{entry_header("Normal schedulers")}
     #{format_scheduler_entry(scheduler_info.normal)}
@@ -102,8 +103,8 @@ defmodule Beamchmark.Formatters.Console do
   end
 
   defp format_scheduler_info(
-         %SchedulerInfo{} = scheduler_info,
-         %SchedulerInfo{} = scheduler_info_diff
+         %Measurements.SchedulerInfo{} = scheduler_info,
+         %Measurements.SchedulerInfo{} = scheduler_info_diff
        ) do
     """
     #{entry_header("Normal schedulers")}

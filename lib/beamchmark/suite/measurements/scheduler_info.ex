@@ -1,4 +1,4 @@
-defmodule Beamchmark.SchedulerInfo do
+defmodule Beamchmark.Suite.Measurements.SchedulerInfo do
   @moduledoc """
   Module representing different statistics about scheduler usage.
   """

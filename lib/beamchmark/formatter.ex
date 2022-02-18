@@ -7,10 +7,10 @@ defmodule Beamchmark.Formatter do
   of `#{inspect(Beamchmark.Suite)}`.
   """
 
-  alias Beamchmark.{Suite, Configuration}
+  alias Beamchmark.Suite
 
   @typedoc """
-  Module implementing `#{inspect(__MODULE__)}` behaviour.
+  Represents a module implementing `#{inspect(__MODULE__)}` behaviour.
   """
   @type t :: module()
 
@@ -37,12 +37,12 @@ defmodule Beamchmark.Formatter do
   @callback write(any, options_t) :: :ok | {:error, String.t()}
 
   @doc """
-  Takes the suite and uses its formatters to output it. If the suite was configured with `try_compare?` flag enabled,
+  Takes the suite and uses its formatters to output it. If the suite was configured with `compare?` flag enabled,
   the previous suite will be also provided to the formatters.
   """
   @spec output(Suite.t()) :: :ok | {:error, String.t()}
   def output(%Suite{} = suite) do
-    with true <- suite.configuration.try_compare?,
+    with true <- suite.configuration.compare?,
          {:ok, base_suite} <- Suite.try_load_base(suite) do
       output_compare(suite, base_suite)
     else
@@ -81,7 +81,7 @@ defmodule Beamchmark.Formatter do
     end)
   end
 
-  defp get_formatters(%Suite{configuration: %Configuration{} = config}) do
+  defp get_formatters(%Suite{configuration: config}) do
     config.formatters
     |> Enum.map(fn formatter ->
       case formatter do
