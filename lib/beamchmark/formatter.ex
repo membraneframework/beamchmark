@@ -6,32 +6,36 @@ defmodule Beamchmark.Formatter do
   @type t :: module()
 
   @typedoc """
-  Options given to formatters.
+  Options given to formatters (defined by formatters authors).
   """
-  @type options :: map()
+  @type options_t :: map()
 
   @doc """
-  Takes the suite and returns whatever representation the formatter wants to use
-  to output that information. It is important that this function **needs to be
-  pure** (aka have no side effects) as Benchee will run `format/1` functions
-  of multiple formatters in parallel. The result will then be passed to
-  `write/1`.
+  Takes the suite and transforms it into some internal representation, that later on will be passed to
+  `write/2`.
   """
-  @callback format(Suite.t(), options) :: any
-
-  @callback format(Suite.t(), Suite.t(), options) :: any
+  @callback format(Suite.t(), options_t) :: any
 
   @doc """
-  Takes the return value of `format/1` and then performs some I/O for the user
-  to actually see the formatted data (UI, File IO, HTTP, ...)
+  Works like `format/2`, but can provide additional information by comparing the latest suite with the
+  previous one (passed as the second argument).
   """
-  @callback write(any, options) :: :ok | {:error, String.t()}
+  @callback format(Suite.t(), Suite.t(), options_t) :: any
 
+  @doc """
+  Takes the return value of `format/1` or `format/2` and outputs it in a convenient form (stdout, file, UI...).
+  """
+  @callback write(any, options_t) :: :ok | {:error, String.t()}
+
+  @doc """
+  Takes the suite and uses its formatters to output it. If the suite was configured with `try_compare?` flag enabled,
+  the previous suite will be also provided to the formatters.
+  """
   @spec output(Suite.t()) :: :ok | {:error, String.t()}
   def output(%Suite{} = suite) do
     with true <- suite.configuration.try_compare?,
          {:ok, base_suite} <- Suite.try_load_base(suite) do
-      output_diff(suite, base_suite)
+      output_compare(suite, base_suite)
     else
       false ->
         output_single(suite)
@@ -57,7 +61,7 @@ defmodule Beamchmark.Formatter do
     end)
   end
 
-  defp output_diff(%Suite{} = suite, %Suite{} = base) do
+  defp output_compare(%Suite{} = suite, %Suite{} = base) do
     suite
     |> get_formatters()
     |> Enum.each(fn {formatter, options} ->

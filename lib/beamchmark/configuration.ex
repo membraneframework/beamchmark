@@ -4,13 +4,13 @@ defmodule Beamchmark.Configuration do
   alias Beamchmark.Formatter
 
   @type t :: %__MODULE__{
-          formatters: [Formatter.t()],
-          delay: non_neg_integer(),
           duration: pos_integer(),
+          delay: non_neg_integer(),
+          formatters: [Formatter.t()],
           output_dir: Path.t(),
           try_compare?: boolean()
         }
 
-  @enforce_keys [:delay, :duration, :formatters, :output_dir, :try_compare?]
+  @enforce_keys [:duration, :delay, :formatters, :try_compare?, :output_dir]
   defstruct @enforce_keys
 end

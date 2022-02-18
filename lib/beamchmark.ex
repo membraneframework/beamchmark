@@ -39,19 +39,22 @@ defmodule Beamchmark do
   @default_duration 60
   @default_delay 0
   @default_formatters [Beamchmark.Formatters.Console]
-  @default_output_dir "/tmp/beamchmark"
+  @default_output_dir Path.join([System.tmp_dir!(), "beamchmark"])
+  @default_try_compare true
 
   @typedoc """
   Configuration for `#{inspect(__MODULE__)}`.
-  * duration - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration}` seconds.
-  * delay - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay}` seconds.
-  * formatters - list of formatters that will be applied to the result. Defaults to `#{inspect(@default_formatters)}`
-  * output_dir - directory where results of benchmarking will be saved. Defaults to `#{@default_output_dir}`.
+  * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration}` seconds.
+  * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay}` seconds.
+  * `formatters` - list of formatters that will be applied to the result. Defaults to `#{inspect(@default_formatters)}`
+  * `try_compare?` - boolean indicating whether `#{inspect(__MODULE__)}` should pass previous results to formatters. Defaults to `#{inspect(@default_try_compare)}`
+  * `output_dir` - directory where results of benchmarking will be saved. Defaults to "`beamchmark`" directory under location provided by `#{inspect(&System.tmp_dir/0)}`.
   """
   @type options_t() :: [
           duration: pos_integer(),
           delay: non_neg_integer(),
           formatters: [Beamchmark.Formatter.t()],
+          try_compare?: boolean(),
           output_dir: Path.t()
         ]
 
@@ -60,14 +63,14 @@ defmodule Beamchmark do
 
   Subsequent invocation of this function will also compare results with the previous ones.
   """
-  @spec run(Scenario.t(), options_t()) :: :ok | {:error, String.t()}
+  @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok | {:error, String.t()}
   def run(scenario, opts) do
     config = %Beamchmark.Configuration{
-      delay: opts[:delay] || @default_delay,
       duration: opts[:duration] || @default_duration,
+      delay: opts[:delay] || @default_delay,
       formatters: opts[:formatters] || @default_formatters,
-      output_dir: Path.expand(opts[:output_dir] || @default_output_dir),
-      try_compare?: opts[:try_compare?] || true
+      try_compare?: opts[:try_compare?] || @default_try_compare,
+      output_dir: Path.expand(opts[:output_dir] || @default_output_dir)
     }
 
     scenario

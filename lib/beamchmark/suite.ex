@@ -4,17 +4,17 @@ defmodule Beamchmark.Suite do
   alias Beamchmark.{SystemInfo, Scenario, Measurements, Configuration}
 
   @type t :: %__MODULE__{
+          scenario: atom(),
+          configuration: Configuration.t(),
           system_info: SystemInfo.t(),
-          scenario: Scenario.t(),
-          measurements: Measurements.t(),
-          configuration: Configuration.t()
+          measurements: Measurements.t() | nil
         }
 
   @enforce_keys [
-    :system_info,
     :scenario,
-    :measurements,
-    :configuration
+    :configuration,
+    :system_info,
+    :measurements
   ]
   defstruct @enforce_keys
 
@@ -55,10 +55,10 @@ defmodule Beamchmark.Suite do
 
   @spec save(t()) :: :ok
   def save(%__MODULE__{configuration: config} = suite) do
-    output_file = Path.join([config.output_dir, "beamchmark_suite"])
+    output_file = Path.join([config.output_dir, "suite"])
 
     if File.exists?(output_file) do
-      :ok = File.rename!(output_file, Path.join([config.output_dir, "beamchmark_suite_old"]))
+      File.rename!(output_file, Path.join([config.output_dir, "suite_old"]))
     end
 
     File.mkdir_p(config.output_dir)
@@ -68,7 +68,7 @@ defmodule Beamchmark.Suite do
 
   @spec try_load_base(t()) :: {:ok, t()} | {:error, File.posix()}
   def try_load_base(%__MODULE__{configuration: config}) do
-    with old_path <- Path.join([config.output_dir, "beamchmark_suite_old"]),
+    with old_path <- Path.join([config.output_dir, "suite_old"]),
          {:ok, suite} <- File.read(old_path),
          suite <- :erlang.binary_to_term(suite) do
       {:ok, suite}
