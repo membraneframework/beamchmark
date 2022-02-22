@@ -1,6 +1,7 @@
 defmodule Beamchmark.Math do
-  @moduledoc false
-  # module containing math utility functions
+  @moduledoc """
+  The module contains helper math types and utility functions.
+  """
 
   @typedoc """
   Represents a percent.
@@ -10,11 +11,11 @@ defmodule Beamchmark.Math do
   @typedoc """
   Represents a percent difference.
 
-  This can be either `t:percent/0` or `:nan` when trying to compare value with 0.
+  This can be either `t:percent_t/0` or `:nan` when trying to compare value with 0.
   """
   @type percent_diff_t() :: percent_t() | :nan
 
-  @spec percent_diff(integer() | float(), integer() | float()) :: percent_diff_t()
+  @spec percent_diff(number(), number()) :: percent_diff_t()
   def percent_diff(base, new) do
     cond do
       base == new ->

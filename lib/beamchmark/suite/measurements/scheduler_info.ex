@@ -1,11 +1,9 @@
-defmodule Beamchmark.SchedulerInfo do
-  @moduledoc false
-  # module representing different statistics about scheduler usage
+defmodule Beamchmark.Suite.Measurements.SchedulerInfo do
+  @moduledoc """
+  Module representing different statistics about scheduler usage.
+  """
 
   use Bunch.Access
-
-  import Beamchmark.Math
-  import Beamchmark.Utils
 
   alias Beamchmark.Math
 
@@ -113,91 +111,10 @@ defmodule Beamchmark.SchedulerInfo do
     Enum.zip(base, new)
     |> Map.new(fn
       {{sched_id, {base_util, base_percent}}, {sched_id, {new_util, new_percent}}} ->
-        {sched_id, {new_util - base_util, percent_diff(base_percent, new_percent)}}
+        {sched_id, {new_util - base_util, Math.percent_diff(base_percent, new_percent)}}
     end)
   end
 
   defp sched_usage_diff({base_util, base_percent}, {new_util, new_percent}),
-    do: {new_util - base_util, percent_diff(base_percent, new_percent)}
-
-  @spec format(t()) :: binary()
-  def format(scheduler_info) do
-    format(scheduler_info, nil)
-  end
-
-  @spec format(t(), t() | nil) :: binary()
-  def format(scheduler_info, nil) do
-    """
-    Normal schedulers
-    --------------------
-    #{do_format(scheduler_info.normal)}
-    Total: #{do_format(scheduler_info.total_normal)}
-
-    CPU schedulers
-    --------------------
-    #{do_format(scheduler_info.cpu)}
-    Total: #{do_format(scheduler_info.total_cpu)}
-
-    IO schedulers
-    --------------------
-    #{do_format(scheduler_info.io)}
-    Total: #{do_format(scheduler_info.total_io)}
-
-    Weighted
-    --------------------
-    #{do_format(scheduler_info.weighted)}\
-    """
-  end
-
-  def format(scheduler_info, scheduler_info_diff) do
-    """
-    Normal schedulers
-    --------------------
-    #{do_format(scheduler_info.normal, scheduler_info_diff.normal)}
-    Total: #{do_format(scheduler_info.total_normal, scheduler_info_diff.total_normal)}
-
-    CPU schedulers
-    --------------------
-    #{do_format(scheduler_info.cpu, scheduler_info_diff.cpu)}
-    Total: #{do_format(scheduler_info.total_cpu, scheduler_info_diff.total_cpu)}
-
-    IO schedulers
-    --------------------
-    #{do_format(scheduler_info.io, scheduler_info_diff.io)}
-    Total: #{do_format(scheduler_info.total_io, scheduler_info_diff.total_io)}
-
-    Weighted
-    --------------------
-    #{do_format(scheduler_info.weighted, scheduler_info_diff.weighted)}\
-    """
-  end
-
-  defp do_format(metric), do: do_format(metric, nil)
-
-  defp do_format(sched_usage, nil) when is_map(sched_usage) do
-    Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
-      "#{sched_id} #{util} #{percent}%"
-    end)
-  end
-
-  defp do_format(sched_usage, sched_usage_diff)
-       when is_map(sched_usage) and is_map(sched_usage_diff) do
-    Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
-      {util_diff, percent_diff} = Map.get(sched_usage_diff, sched_id)
-      color = get_color(percent_diff)
-
-      "#{sched_id} #{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
-    end)
-  end
-
-  # clauses for total and weighted usage
-  defp do_format({util, percent}, nil) do
-    "#{util} #{percent}%"
-  end
-
-  defp do_format({util, percent}, {util_diff, percent_diff}) do
-    color = get_color(util_diff)
-
-    "#{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
-  end
+    do: {new_util - base_util, Math.percent_diff(base_percent, new_percent)}
 end

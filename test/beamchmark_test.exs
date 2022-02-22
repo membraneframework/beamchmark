@@ -8,12 +8,19 @@ defmodule BeamchmarkTest do
     @behaviour Beamchmark.Scenario
 
     @impl true
-    def run(), do: :noop
+    def run(), do: :ok
   end
 
-  test "Beamchmark runs properly" do
-    assert :ok == Beamchmark.run(TestScenario, duration: 1)
-    # check wheather Beamchmark can read and compare new results with the previous one
-    assert :ok == Beamchmark.run(TestScenario, duration: 1)
+  setup do
+    temp_directory = Path.join([System.tmp_dir!(), "beamchmark_test"])
+    on_exit(fn -> File.rm_rf!(temp_directory) end)
+    options = [delay: 0, duration: 1, output_dir: temp_directory, compare?: true]
+    [options: options]
+  end
+
+  test "Beamchmark runs properly", %{options: options} do
+    assert :ok == Beamchmark.run(TestScenario, options)
+    # check whether Beamchmark can read and compare new results with the previous one
+    assert :ok == Beamchmark.run(TestScenario, options)
   end
 end

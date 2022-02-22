@@ -58,7 +58,8 @@ defmodule Beamchmark.MixProject do
     [
       main: "readme",
       extras: ["README.md", "LICENSE"],
-      source_ref: "v#{@version}"
+      source_ref: "v#{@version}",
+      nest_modules_by_prefix: [Beamchmark.Suite]
     ]
   end
 end
