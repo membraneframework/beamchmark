@@ -5,11 +5,11 @@ defmodule Beamchmark.Formatters.HTML do
 
   @behaviour Beamchmark.Formatter
 
-  @default_output_file "index.html"
-  @default_auto_open true
-
   alias Beamchmark.Suite
   alias __MODULE__.Templates
+
+  @default_output_file "index.html"
+  @default_auto_open true
 
   @impl true
   def format(%Suite{} = suite, _options) do
