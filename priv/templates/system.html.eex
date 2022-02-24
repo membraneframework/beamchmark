@@ -1,0 +1,23 @@
+<h2>System</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Elixir version</th>
+      <th>OTP version</th>
+      <th>NIF version</th>
+      <th>OS</th>
+      <th>Architecture</th>
+      <th>Number of cores</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= system_info.elixir_version %></td>
+      <td><%= system_info.otp_version %></td>
+      <td><%= system_info.nif_version %></td>
+      <td><%= system_info.os %></td>
+      <td><%= system_info.arch %></td>
+      <td><%= system_info.num_cores %></td>
+    </tr>
+  </tbody>
+</table>

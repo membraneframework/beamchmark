@@ -1,0 +1,103 @@
+<h2>Measurements</h2>
+<div id="measurements"></div>
+<div id="normalScheduler"></div>
+<div id="cpuScheduler"></div>
+<div id="ioScheduler"></div>
+<script>
+  let indicatorConfig =  {
+    type: "indicator",
+    mode: "number"
+  };
+
+  let measurements = [
+    {
+      title: { text: "Reductions" },
+      value: <%= measurements.reductions %>,
+      domain: { row: 0, column: 0 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Context switches" },
+      value: <%= measurements.context_switches %>,
+      domain: { row: 0, column: 2 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total Normal [s]" },
+      value: <%= measurements.scheduler_info.total_normal |> elem(0) %>,
+      domain: { row: 1, column: 0 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total CPU [s]" },
+      value: <%= measurements.scheduler_info.total_cpu |> elem(0) %>,
+      domain: { row: 1, column: 1 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total IO [s]" },
+      value: <%= measurements.scheduler_info.total_io |> elem(0) %>,
+      domain: { row: 1, column: 2 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total [s]" },
+      value: <%= measurements.scheduler_info.total |> elem(0) %>,
+      domain: { row: 2, column: 0 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Weighted [s]" },
+      value: <%= measurements.scheduler_info.weighted |> elem(0) %>,
+      domain: { row: 2, column: 2 },
+      ...indicatorConfig
+    }
+  ];
+
+  let measurementsLayout = {
+    grid: { rows: 3, columns: 3, pattern: "independent" },
+    margin: { t: 25, b: 0, l: 0, r: 0 }
+  };
+
+  Plotly.newPlot("measurements", measurements, measurementsLayout, { displaylogo: false });
+
+  let schedulerLayout = {
+    barmode: "group",
+    xaxis: {
+      title: { text: "Scheduler ID" },
+    },
+    yaxis: {
+      title: { text: "Mean time spent busy" }
+    }
+  };
+
+  <%= for scheduler_type <- [:normal, :cpu, :io], was_busy?(measurements.scheduler_info[scheduler_type]) do %>
+    <%
+      formatted = format_scheduler_info(measurements.scheduler_info[scheduler_type])
+
+      scheduler_str = Atom.to_string(scheduler_type)
+      div_id = scheduler_str <> "Scheduler"
+      title = if scheduler_type in [:cpu, :io] do
+        scheduler_str |> String.upcase()
+      else
+        scheduler_str |> String.capitalize()
+      end <> " schedulers"
+    %>
+    let <%= div_id %> = [
+      {
+        name: "Base",
+        type: "bar",
+        x: [<%= formatted.scheduler_ids %>],
+        y: [<%= formatted.usage %>],
+        text: [<%= formatted.percent_usage %>]
+      }
+    ];
+
+    Plotly.newPlot(
+      <%= format_as_string(div_id) %>,
+      <%= div_id %>,
+      { title: <%= format_as_string(title) %>, ...schedulerLayout },
+      { displaylogo: false }
+    );
+  <% end %>
+</script>

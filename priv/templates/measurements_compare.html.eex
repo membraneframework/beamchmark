@@ -1,0 +1,125 @@
+<h2>Measurements</h2>
+<div id="measurements"></div>
+<div id="normalScheduler"></div>
+<div id="cpuScheduler"></div>
+<div id="ioScheduler"></div>
+<script>
+  let indicatorConfig =  {
+    type: "indicator",
+    mode: "number+delta"
+  };
+  let deltaConfig = {
+    relative: true,
+    increasing: { color: "#ff4136" },
+    decreasing: { color: "#3d9970" }
+  };
+
+  let measurements = [
+    {
+      title: { text: "Reductions" },
+      value: <%= new_measurements.reductions %>,
+      delta: { reference: <%= base_measurements.reductions %>, ...deltaConfig },
+      domain: { row: 0, column: 0 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Context switches" },
+      value: <%= new_measurements.context_switches %>,
+      delta: { reference: <%= base_measurements.context_switches %>, ...deltaConfig },
+      domain: { row: 0, column: 2 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total Normal [s]" },
+      value: <%= new_measurements.scheduler_info.total_normal |> elem(0) %>,
+      delta: { reference: <%= base_measurements.scheduler_info.total_normal |> elem(0) %>, ...deltaConfig },
+      domain: { row: 1, column: 0 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total CPU [s]" },
+      value: <%= new_measurements.scheduler_info.total_cpu |> elem(0) %>,
+      delta: { reference: <%= base_measurements.scheduler_info.total_cpu |> elem(0) %>, ...deltaConfig },
+      domain: { row: 1, column: 1 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total IO [s]" },
+      value: <%= new_measurements.scheduler_info.total_io |> elem(0) %>,
+      delta: { reference: <%= base_measurements.scheduler_info.total_io |> elem(0) %>, ...deltaConfig },
+      domain: { row: 1, column: 2 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Total [s]" },
+      value: <%= new_measurements.scheduler_info.total |> elem(0) %>,
+      delta: { reference: <%= base_measurements.scheduler_info.total |> elem(0) %>, ...deltaConfig },
+      domain: { row: 2, column: 0 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Weighted [s]" },
+      value: <%= new_measurements.scheduler_info.weighted |> elem(0) %>,
+      delta: { reference: <%= base_measurements.scheduler_info.weighted |> elem(0) %>, ...deltaConfig },
+      domain: { row: 2, column: 2 },
+      ...indicatorConfig
+    }
+  ];
+
+  let measurementsLayout = {
+    grid: { rows: 3, columns: 3, pattern: "independent" },
+    margin: { t: 25, b: 0, l: 0, r: 0 }
+  };
+
+  Plotly.newPlot("measurements", measurements, measurementsLayout, { displaylogo: false });
+
+  let schedulerLayout = {
+    barmode: "group",
+    xaxis: {
+      title: { text: "Scheduler ID" },
+    },
+    yaxis: {
+      title: { text: "Mean time spent busy" }
+    }
+  };
+
+  <%= for scheduler_type <- [:normal, :cpu, :io], Enum.any?(
+    [new_measurements.scheduler_info[scheduler_type], base_measurements.scheduler_info[scheduler_type]], &was_busy?/1
+  ) do %>
+    <%
+      formatted_new = format_scheduler_info(new_measurements.scheduler_info[scheduler_type])
+      formatted_base = format_scheduler_info(base_measurements.scheduler_info[scheduler_type])
+
+      scheduler_str = Atom.to_string(scheduler_type)
+      div_id = scheduler_str <> "Scheduler"
+      title = if scheduler_type in [:cpu, :io] do
+        scheduler_str |> String.upcase()
+      else
+        scheduler_str |> String.capitalize()
+      end <> " schedulers"
+    %>
+    let <%= div_id %> = [
+      {
+        name: "Base",
+        type: "bar",
+        x: [<%= formatted_base.scheduler_ids %>],
+        y: [<%= formatted_base.usage %>],
+        text: [<%= formatted_base.percent_usage %>]
+      },
+      {
+        name: "New",
+        type: "bar",
+        x: [<%= formatted_new.scheduler_ids %>],
+        y: [<%= formatted_new.usage %>],
+        text: [<%= formatted_new.percent_usage %>]
+      }
+    ];
+
+    Plotly.newPlot(
+      <%= format_as_string(div_id) %>,
+      <%= div_id %>,
+      { title: <%= format_as_string(title) %>, ...schedulerLayout },
+      { displaylogo: false }
+    );
+  <% end %>
+</script>
