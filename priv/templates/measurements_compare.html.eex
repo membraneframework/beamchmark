@@ -29,41 +29,21 @@
       domain: { row: 0, column: 2 },
       ...indicatorConfig
     },
-    {
-      title: { text: "Total Normal [s]" },
-      value: <%= new_measurements.scheduler_info.total_normal |> elem(0) %>,
-      delta: { reference: <%= base_measurements.scheduler_info.total_normal |> elem(0) %>, ...deltaConfig },
-      domain: { row: 1, column: 0 },
-      ...indicatorConfig
-    },
-    {
-      title: { text: "Total CPU [s]" },
-      value: <%= new_measurements.scheduler_info.total_cpu |> elem(0) %>,
-      delta: { reference: <%= base_measurements.scheduler_info.total_cpu |> elem(0) %>, ...deltaConfig },
-      domain: { row: 1, column: 1 },
-      ...indicatorConfig
-    },
-    {
-      title: { text: "Total IO [s]" },
-      value: <%= new_measurements.scheduler_info.total_io |> elem(0) %>,
-      delta: { reference: <%= base_measurements.scheduler_info.total_io |> elem(0) %>, ...deltaConfig },
-      domain: { row: 1, column: 2 },
-      ...indicatorConfig
-    },
-    {
-      title: { text: "Total [s]" },
-      value: <%= new_measurements.scheduler_info.total |> elem(0) %>,
-      delta: { reference: <%= base_measurements.scheduler_info.total |> elem(0) %>, ...deltaConfig },
-      domain: { row: 2, column: 0 },
-      ...indicatorConfig
-    },
-    {
-      title: { text: "Weighted [s]" },
-      value: <%= new_measurements.scheduler_info.weighted |> elem(0) %>,
-      delta: { reference: <%= base_measurements.scheduler_info.weighted |> elem(0) %>, ...deltaConfig },
-      domain: { row: 2, column: 2 },
-      ...indicatorConfig
-    }
+    <%= for {metric, title, position} <- [
+      {:total_normal, "Total Normal", {1, 0}},
+      {:total_cpu, "Total CPU", {1, 1}},
+      {:total_io, "Total IO", {1, 2}},
+      {:total, "Total", {2, 0}},
+      {:weighted, "Weighted", {2, 2}}
+    ] do %>
+      {
+        title: { text: <%= format_as_string(title <> " [s]") %> },
+        value: <%= elem(new_measurements.scheduler_info[metric], 0) %>,
+        delta: { reference: <%= elem(base_measurements.scheduler_info[metric], 0) %>, ...deltaConfig },
+        domain: { row: <%= elem(position, 0) %>, column: <%= elem(position, 1) %> },
+        ...indicatorConfig
+      },
+    <% end %>
   ];
 
   let measurementsLayout = {
@@ -79,24 +59,17 @@
       title: { text: "Scheduler ID" },
     },
     yaxis: {
-      title: { text: "Mean time spent busy" }
+      title: { text: "Mean time spent busy [s]" }
     }
   };
 
-  <%= for scheduler_type <- [:normal, :cpu, :io], Enum.any?(
-    [new_measurements.scheduler_info[scheduler_type], base_measurements.scheduler_info[scheduler_type]], &was_busy?/1
-  ) do %>
+  <%= for {scheduler_type, title} <- [{:normal, "Normal"}, {:cpu, "CPU"}, {:io, "IO"}],
+    was_busy?(new_measurements.scheduler_info[scheduler_type]) or was_busy?(base_measurements.scheduler_info[scheduler_type])
+  do %>
     <%
       formatted_new = format_scheduler_info(new_measurements.scheduler_info[scheduler_type])
       formatted_base = format_scheduler_info(base_measurements.scheduler_info[scheduler_type])
-
-      scheduler_str = Atom.to_string(scheduler_type)
-      div_id = scheduler_str <> "Scheduler"
-      title = if scheduler_type in [:cpu, :io] do
-        scheduler_str |> String.upcase()
-      else
-        scheduler_str |> String.capitalize()
-      end <> " schedulers"
+      div_id = Atom.to_string(scheduler_type) <> "Scheduler"
     %>
     let <%= div_id %> = [
       {
@@ -118,7 +91,7 @@
     Plotly.newPlot(
       <%= format_as_string(div_id) %>,
       <%= div_id %>,
-      { title: <%= format_as_string(title) %>, ...schedulerLayout },
+      { title: <%= format_as_string(title <> " Scheduler") %>, ...schedulerLayout },
       { displaylogo: false }
     );
   <% end %>
