@@ -61,7 +61,7 @@ defmodule Beamchmark do
   @doc """
   Runs scenario and benchmarks EVM performance.
 
-  Subsequent invocation of this function will also compare results with the previous ones.
+  If `compare?` option equals `true`, invocation of this function will also compare new measurements with the previous.
   """
   @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok
   def run(scenario, opts) do
