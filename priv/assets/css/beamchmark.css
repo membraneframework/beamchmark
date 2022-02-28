@@ -1,6 +1,7 @@
 body {
     font-family: "Open Sans", Verdana, Arial, sans-serif;
     text-align: center;
+    min-height: 100vh;
 }
 
 section {
@@ -50,6 +51,6 @@ th, td {
 }
 
 .footer {
-    margin-top: 20px;
+    margin-top: auto;
     line-height: 1.5;
 }
