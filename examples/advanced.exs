@@ -8,4 +8,4 @@ defmodule AdvancedScenario do
   end
 end
 
-Beamchmark.run(AdvancedScenario, duration: 10, delay: 1, output_dir: "/tmp/beamchmark_output")
+Beamchmark.run(AdvancedScenario, duration: 10, delay: 1)

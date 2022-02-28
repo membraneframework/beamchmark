@@ -2,14 +2,14 @@
 <table>
   <thead>
     <tr>
-      <th>Duration</th>
-      <th>Delay</th>
+      <th>Duration [s]</th>
+      <th>Delay [s]</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><%= configuration.duration %>s</td>
-      <td><%= configuration.delay %>s</td>
+      <td><%= configuration.duration %></td>
+      <td><%= configuration.delay %></td>
     </tr>
   </tbody>
 </table>

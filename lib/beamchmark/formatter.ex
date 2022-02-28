@@ -17,7 +17,7 @@ defmodule Beamchmark.Formatter do
   @typedoc """
   Options given to formatters (defined by formatters authors).
   """
-  @type options_t :: map()
+  @type options_t :: Keyword.t()
 
   @doc """
   Takes the suite and transforms it into some internal representation, that later on will be passed to
@@ -86,19 +86,19 @@ defmodule Beamchmark.Formatter do
     |> Enum.map(fn formatter ->
       case formatter do
         {module, options} -> {module, options}
-        module -> {module, %{}}
+        module -> {module, []}
       end
     end)
     |> tap(fn formatters -> Enum.each(formatters, &validate/1) end)
   end
 
-  defp validate({formatter, options}) when not is_map(options),
-    do:
+  defp validate({formatter, options}) do
+    unless Keyword.keyword?(options) do
       raise(
-        "Options for #{inspect(formatter)} need to be passed as a map. Got: #{inspect(options)}."
+        "Options for #{inspect(formatter)} need to be passed as a keyword list. Got: #{inspect(options)}."
       )
+    end
 
-  defp validate({formatter, _options}) do
     implements_formatter? =
       formatter.module_info(:attributes)
       |> Keyword.get(:behaviour, [])

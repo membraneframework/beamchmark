@@ -1,21 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Beamchmark Report <%= new_suite.scenario %> </title>
+    <title>Beamchmark Report (<%= format_scenario(new_suite.scenario) %>) </title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script>
-      <%= Application.app_dir(:beamchmark, "priv/assets/js/") |> Path.join("plotly-2.9.0.min.js") |> File.read!() %>
-    </script>
+    <%
+      assets_dir = Application.app_dir(:beamchmark, "priv/assets")
+      css_path = Path.join([assets_dir, "css", "beamchmark.css"])
+      js_path = Path.join([assets_dir, "js", "plotly-2.9.0.min.js"])
+    %>
+    <%= if inline_assets? do %>
+      <style>
+        <%= File.read!(css_path) %>
+      </style>
+      <script>
+        <%= File.read!(js_path) %>
+      </script>
+    <% else %>
+      <link rel="stylesheet" href="<%= css_path %>">
+      <script src="<%= js_path %>"></script>
+    <% end %>
   </head>
   <body>
-    <h1>Scenario: <%= new_suite.scenario %></h1>
-    <%= system(new_suite.system_info) %>
-    <%= configuration(new_suite.configuration) %>
-    <%= if is_nil(base_suite) do
-      measurements(new_suite.measurements)
-    else
-      measurements_compare(new_suite.measurements, base_suite.measurements)
-    end %>
+    <section class="header">
+      <h1>Beamchmark Report</h2>
+      <h2><%= format_scenario(new_suite.scenario) %></h2>
+    </section>
+    <section><%= system(new_suite.system_info) %></section>
+    <section><%= configuration(new_suite.configuration) %></section>
+    <% maybe_base_measurements = if is_nil(base_suite), do: nil, else: base_suite.measurements %>
+    <section class="results"><%= measurements(new_suite.measurements, maybe_base_measurements) %></section>
+    <div class="footer">
+      <% vsn = Application.spec(:beamchmark, :vsn) %>
+      <a href="https://github.com/membraneframework/beamchmark/tree/v<%= vsn %>">Beamchmark v<%= vsn %></a><br/>
+      Made with &hearts; by <a href="https://www.membraneframework.org">Membrane Team</a>
+    </div>
   </body>
 </html>

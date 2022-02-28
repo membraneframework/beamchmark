@@ -3,9 +3,14 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
   require EEx
 
+  alias Beamchmark.Scenario
   alias Beamchmark.Suite.Measurements.SchedulerInfo
 
-  EEx.function_from_file(:def, :index, "priv/templates/index.html.eex", [:new_suite, :base_suite])
+  EEx.function_from_file(:def, :index, "priv/templates/index.html.eex", [
+    :new_suite,
+    :base_suite,
+    :inline_assets?
+  ])
 
   EEx.function_from_file(:def, :configuration, "priv/templates/configuration.html.eex", [
     :configuration
@@ -14,18 +19,14 @@ defmodule Beamchmark.Formatters.HTML.Templates do
   EEx.function_from_file(:def, :system, "priv/templates/system.html.eex", [:system_info])
 
   EEx.function_from_file(:def, :measurements, "priv/templates/measurements.html.eex", [
-    :measurements
+    :new_measurements,
+    :base_measurements
   ])
 
-  EEx.function_from_file(
-    :def,
-    :measurements_compare,
-    "priv/templates/measurements_compare.html.eex",
-    [
-      :new_measurements,
-      :base_measurements
-    ]
-  )
+  @spec format_scenario(Scenario.t()) :: String.t()
+  def format_scenario(scenario) do
+    scenario |> Atom.to_string() |> String.trim_leading("Elixir.")
+  end
 
   @spec format_scheduler_info(SchedulerInfo.sched_usage_t()) :: %{
           (scheduler_usage_entry :: atom()) => String.t()
@@ -43,15 +44,10 @@ defmodule Beamchmark.Formatters.HTML.Templates do
         end),
       percent_usage:
         Enum.map_join(sorted_by_ids, ", ", fn {_scheduler_id, {_usage, percent_usage}} ->
-          [percent_usage, "%"]
-          |> Enum.join()
-          |> format_as_string()
+          "\"#{percent_usage}%\""
         end)
     }
   end
-
-  @spec format_as_string(String.t()) :: String.t()
-  def format_as_string(string), do: Enum.join(['"', string, '"'])
 
   @spec was_busy?(SchedulerInfo.sched_usage_t()) :: boolean()
   def was_busy?(scheduler_usage_info) do
