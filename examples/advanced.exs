@@ -12,7 +12,7 @@ Beamchmark.run(AdvancedScenario,
   duration: 10,
   delay: 1,
   compare?: true,
-  output_dir: "beamchmark",
+  output_dir: "beamchmark_output",
   formatters: [
     Beamchmark.Formatters.Console,
     {Beamchmark.Formatters.HTML,
