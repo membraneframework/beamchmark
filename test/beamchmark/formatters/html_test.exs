@@ -47,16 +47,32 @@ defmodule Beamchmark.Formatters.HTMLTest do
       html_assets_linked = HTML.format(suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, inline_assets?: true)
 
-      assert_in_delta byte_size(html_assets_linked), 6000, 500
-      assert_in_delta byte_size(html_assets_inlined), 3_500_000, 500_000
+      expected_size_linked = 6000
+      expected_size_inlined = 3_670_000
+
+      assert_in_delta byte_size(html_assets_linked),
+                      expected_size_linked,
+                      0.1 * expected_size_linked
+
+      assert_in_delta byte_size(html_assets_inlined),
+                      expected_size_inlined,
+                      0.1 * expected_size_inlined
     end
 
     test "on format/3 generates reports of predictable size", %{suite: suite} do
       html_assets_linked = HTML.format(suite, suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, suite, inline_assets?: true)
 
-      assert_in_delta byte_size(html_assets_linked), 7500, 500
-      assert_in_delta byte_size(html_assets_inlined), 3_500_000, 500_000
+      expected_size_linked = 7300
+      expected_size_inlined = 3_670_000
+
+      assert_in_delta byte_size(html_assets_linked),
+                      expected_size_linked,
+                      0.1 * expected_size_linked
+
+      assert_in_delta byte_size(html_assets_inlined),
+                      expected_size_inlined,
+                      0.1 * expected_size_inlined
     end
 
     test "on write/2 returns :ok and creates an html file" do
