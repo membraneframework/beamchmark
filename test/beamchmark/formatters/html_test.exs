@@ -23,16 +23,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
       assert is_binary(HTML.format(suite, suite, []))
     end
 
-    test "write/2 returns :ok and creates an html file" do
-      mock_html = "some html content here"
-      options = [output_path: Path.join([@temp_directory, "test.html"]), auto_open?: false]
-
-      assert :ok = HTML.write(mock_html, options)
-      assert File.exists?(options[:output_path])
-      assert File.read!(options[:output_path]) == mock_html
-    end
-
-    test "format/2 respects inline_assets? flag", %{suite: suite} do
+    test "on format/2 respects inline_assets? flag", %{suite: suite} do
       html_assets_linked = HTML.format(suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, inline_assets?: true)
 
@@ -42,7 +33,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
       end)
     end
 
-    test "format/3 respects inline_assets? flag", %{suite: suite} do
+    test "on format/3 respects inline_assets? flag", %{suite: suite} do
       html_assets_linked = HTML.format(suite, suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, suite, inline_assets?: true)
 
@@ -50,6 +41,31 @@ defmodule Beamchmark.Formatters.HTMLTest do
         assert String.contains?(html_assets_linked, asset_path)
         assert String.contains?(html_assets_inlined, File.read!(asset_path))
       end)
+    end
+
+    test "on format/2 generates reports of predictable size", %{suite: suite} do
+      html_assets_linked = HTML.format(suite, inline_assets?: false)
+      html_assets_inlined = HTML.format(suite, inline_assets?: true)
+
+      assert_in_delta byte_size(html_assets_linked), 6000, 500
+      assert_in_delta byte_size(html_assets_inlined), 3_500_000, 500_000
+    end
+
+    test "on format/3 generates reports of predictable size", %{suite: suite} do
+      html_assets_linked = HTML.format(suite, suite, inline_assets?: false)
+      html_assets_inlined = HTML.format(suite, suite, inline_assets?: true)
+
+      assert_in_delta byte_size(html_assets_linked), 7500, 500
+      assert_in_delta byte_size(html_assets_inlined), 3_500_000, 500_000
+    end
+
+    test "on write/2 returns :ok and creates an html file" do
+      mock_html = "some html content here"
+      options = [output_path: Path.join([@temp_directory, "test.html"]), auto_open?: false]
+
+      assert :ok = HTML.write(mock_html, options)
+      assert File.exists?(options[:output_path])
+      assert File.read!(options[:output_path]) == mock_html
     end
   end
 end
