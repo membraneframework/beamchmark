@@ -27,7 +27,7 @@ defmodule Beamchmark.Formatters.ConsoleTest do
 
       expected_size = 1000
 
-      assert_in_delta byte_size(report), expected_size, 0.1 * expected_size
+      assert_in_delta byte_size(report), expected_size, 0.5 * expected_size
     end
 
     test "on format/3 generates reports of predictable size", %{suite: suite} do
@@ -35,7 +35,7 @@ defmodule Beamchmark.Formatters.ConsoleTest do
 
       expected_size = 2000
 
-      assert_in_delta byte_size(report), expected_size, 0.1 * expected_size
+      assert_in_delta byte_size(report), expected_size, 0.5 * expected_size
     end
 
     test "returns :ok from write/2" do

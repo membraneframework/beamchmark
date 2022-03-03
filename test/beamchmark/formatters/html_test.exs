@@ -52,11 +52,11 @@ defmodule Beamchmark.Formatters.HTMLTest do
 
       assert_in_delta byte_size(html_assets_linked),
                       expected_size_linked,
-                      0.1 * expected_size_linked
+                      0.5 * expected_size_linked
 
       assert_in_delta byte_size(html_assets_inlined),
                       expected_size_inlined,
-                      0.1 * expected_size_inlined
+                      0.5 * expected_size_inlined
     end
 
     test "on format/3 generates reports of predictable size", %{suite: suite} do
@@ -68,11 +68,11 @@ defmodule Beamchmark.Formatters.HTMLTest do
 
       assert_in_delta byte_size(html_assets_linked),
                       expected_size_linked,
-                      0.1 * expected_size_linked
+                      0.5 * expected_size_linked
 
       assert_in_delta byte_size(html_assets_inlined),
                       expected_size_inlined,
-                      0.1 * expected_size_inlined
+                      0.5 * expected_size_inlined
     end
 
     test "on write/2 returns :ok and creates an html file" do
