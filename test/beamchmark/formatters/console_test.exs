@@ -22,22 +22,6 @@ defmodule Beamchmark.Formatters.ConsoleTest do
       assert is_binary(Console.format(suite, suite, []))
     end
 
-    test "on format/2 generates reports of predictable size", %{suite: suite} do
-      report = Console.format(suite, [])
-
-      expected_size = 1000
-
-      assert_in_delta byte_size(report), expected_size, 0.5 * expected_size
-    end
-
-    test "on format/3 generates reports of predictable size", %{suite: suite} do
-      report = Console.format(suite, suite, [])
-
-      expected_size = 2000
-
-      assert_in_delta byte_size(report), expected_size, 0.5 * expected_size
-    end
-
     test "returns :ok from write/2" do
       assert :ok = Console.write("should print on console", [])
     end
