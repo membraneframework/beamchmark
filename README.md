@@ -5,17 +5,16 @@
 
 Tool for measuring EVM performance.
 
-At the moment, the main interest of Beamchmark is scheduler utilization, reductions and context switches number.
+At the moment, the main interest of Beamchmark is scheduler utilization, reductions and the number of context switches.
 For more information please refer to API docs.
 
 ## Beamchmark and Benchee
-Beamchmark should be used when you want to measure BEAM performance while it is runing your application.
+Beamchmark should be used when you want to measure BEAM performance while it is running your application.
 Benchee should be used when you want to benchmark specific function from your code base.
-In particular, Benchee will inform you how long your function is executing while Beamchmark will inform you
+In particular, Benchee will inform you how long your function is executing, while Beamchmark will inform you
 how busy BEAM is.
 
 ## Installation
-
 The package can be installed by adding `beamchmark` to your list of dependencies in `mix.exs`:
 
 ```elixir
@@ -27,124 +26,154 @@ end
 ```
 
 ## Usage
-To run example type: 
+To run an example, simply use the following command: 
 
 ```bash
 mix run examples/<example_name>.exs
 ```
 
-### Example output
+## Formatters
+Currently, Beamchmark supports two ways of printing its reports:
+* `Beamchmark.Formatters.Console`
 
-```txt
-> mix run examples/advanced.exs
+  This is the default formatter, it will print the report on standard output.
 
-Running scenario
-Waiting 1 seconds
-Benchmarking
+  <details>
+  <summary>Example output</summary>
+  <br>
+  ```txt
+  > mix run examples/advanced.exs
 
-================
-SYSTEM INFO
-================
+  Running scenario "AdvancedScenario"...
+  Waiting 5 seconds...
+  Benchmarking for 15 seconds...
+  Results successfully saved to "/tmp/beamchmark_output" directory.
+  ================
+  SYSTEM INFO
+  ================
 
-System version: Erlang/OTP 24 [erts-12.0.3] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:1] [jit]
-System arch: x86_64-pc-linux-gnu
-NIF version: 2.16
+  Elixir version: 1.13.3
+  OTP version: 24
+  OS: macOS
+  System arch: aarch64-apple-darwin21.1.0
+  NIF version: 2.16
+  Cores: 8
 
-================
-BASE
-================
+  ================
+  CONFIGURATION
+  ================
 
-Normal schedulers
---------------------
-1 1.0668080386966647e-4 0.0%
-2 7.998836416749597e-5 0.0%
-3 4.2106493950736044e-4 0.0%
-4 3.639672738461754e-7 0.0%
-5 4.7350414264111834e-4 0.0%
-6 0.0043860455491825795 0.4%
-7 8.102830226995653e-5 0.0%
-8 1.6912821965950098e-4 0.0%
-Total: 7.147255360714405e-4 0.1%
+  Delay: 5s
+  Duration: 15s
 
-CPU schedulers
---------------------
-9 0.0 0.0%
-10 0.0 0.0%
-11 0.0 0.0%
-12 0.0 0.0%
-13 0.0 0.0%
-14 0.0 0.0%
-15 0.0 0.0%
-16 0.006471963981908292 0.6%
-Total: 8.089954977385365e-4 0.1%
+  ================
+  MEASUREMENTS
+  ================
 
-IO schedulers
---------------------
+  Normal schedulers
+  --------------------
+  1 0.7020763014639843 70.2%
+  2 0.6767303549926615 67.7%
+  3 0.7163657988707101 71.6%
+  4 0.6820129497429184 68.2%
+  5 0.7056747696775519 70.6%
+  6 0.6582191381763732 65.8%
+  7 0.5866170837683002 58.7%
+  8 0.21022401386144263 21.0%
+  Total: 0.6172400513192429 61.7%
 
-Total: 0 0%
+  CPU schedulers
+  --------------------
+  9 0.0 0.0%
+  10 0.0 0.0%
+  11 0.17425219168387035 17.4%
+  12 0.3033345203543891 30.3%
+  13 0.1410712973909046 14.1%
+  14 0.24115177128561846 24.1%
+  15 0.3105390404381321 31.1%
+  16 0.27138609560062016 27.1%
+  Total: 0.18021686459419187 18.0%
 
-Weighted
---------------------
-0.001523719527435532 0.2%
+  IO schedulers
+  --------------------
 
-Reductions
---------------------
-11661549
+  Total: 0 0%
 
-Context Switches
---------------------
-30602
+  Weighted
+  --------------------
+  0.7974559085619839 79.7%
 
-================
-NEW
-================
 
-Normal schedulers
---------------------
-1 3.089102038763749e-4 0.0%  2.0222940000670843e-4 0%
-2 3.782341555965018e-4 0.0%  2.982457914290058e-4 0%
-3 3.6955770413050143e-6 0.0%  -4.1736936246605544e-4 0%
-4 1.6818640195259216e-4 0.0%  1.67822434678746e-4 0%
-5 3.98059971168814e-4 0.0%  -7.544417147230432e-5 0%
-6 2.6124825293454316e-4 0.0%  -0.004124797296248036 -100%
-7 0.005979264520280537 0.6%  0.00589823621801058 nan
-8 1.3163673613384656e-4 0.0%  -3.749148352565442e-5 0%
-Total: 9.536544773730643e-4 0.1%  2.389289413016238e-4 0%
+  Reductions
+  --------------------
+  5616394756
 
-CPU schedulers
---------------------
-9 0.0 0.0%  0.0 0%
-10 0.0 0.0%  0.0 0%
-11 0.0 0.0%  0.0 0%
-12 0.0 0.0%  0.0 0%
-13 0.0 0.0%  0.0 0%
-14 0.0 0.0%  0.0 0%
-15 0.0 0.0%  0.0 0%
-16 0.005779059586476821 0.6%  -6.929043954314717e-4 0%
-Total: 7.223824483096026e-4 0.1%  -8.661304942893396e-5 0%
+  Context Switches
+  --------------------
+  1428412
 
-IO schedulers
---------------------
+  ================
+  NEW MEASUREMENTS
+  ================
 
-Total: 0 0%  0 0%
+  Normal schedulers
+  --------------------
+  1 0.711089161283597 71.1%  0.00901285981961275 1.2820512820512704%
+  2 0.6641681737630784 66.4%  -0.012562181229583191 -1.920236336779908%
+  3 0.7106285043485066 71.1%  -0.0057372945222035066 -0.6983240223463696%
+  4 0.70753393024408 70.8%  0.025520980501161583 3.812316715542522%
+  5 0.6840751352002755 68.4%  -0.02159963447727642 -3.116147308781862%
+  6 0.671931312310082 67.2%  0.013712174133708732 2.1276595744680975%
+  7 0.5639523157401223 56.4%  -0.022664768028177962 -3.9182282793867103%
+  8 0.18621091185400204 18.6%  -0.024013102007440584 -11.428571428571416%
+  Total: 0.612448680592968 61.2%  -0.004791370726274891 -0.8103727714748743%
 
-Weighted
---------------------
-0.0016760349343240095 0.2%  1.5231540688847743e-4 0%
+  CPU schedulers
+  --------------------
+  9 0.3204327904290152 32.0%  0.3204327904290152 nan
+  10 0.3060191309572284 30.6%  0.3060191309572284 nan
+  11 0.19581858685194856 19.6%  0.021566395168078206 12.643678160919563%
+  12 0.28379457620982024 28.4%  -0.019539944144568888 -6.270627062706282%
+  13 0.23252541122737072 23.3%  0.09145411383646612 65.24822695035462%
+  14 0.0 0.0%  -0.24115177128561846 -100%
+  15 0.0 0.0%  -0.3105390404381321 -100%
+  16 0.05489916160857257 5.5%  -0.2164869339920476 -79.70479704797049%
+  Total: 0.17418620716049446 17.4%  -0.006030657433697406 -3.333333333333343%
 
-Reductions
---------------------
-23727211  12065662 103.46534581297905%
+  IO schedulers
+  --------------------
 
-Context Switches
---------------------
-38717  8115 26.517874648715775%
+  Total: 0 0%  0 0%
 
-Results successfully saved to "/tmp/beamchmark_output/new" directory
-```
+  Weighted
+  --------------------
+  0.7866289232807818 78.7%  -0.010826985281202073 -1.2547051442910941%
+
+
+  Reductions
+  --------------------
+  5613002284  -3392472 -0.06040301914988788%
+
+  Context Switches
+  --------------------
+  1428303  -109 -0.007630851603039446%
+  ```
+  </details>
+
+* `Beamchmark.Formatters.HTML`
+
+  The HTML formatter will save the report to an HTML file.
+  <details>
+  <summary>Example output</summary>
+  <br>
+  (insert screenshot here)
+  </details> 
+
+* Custom formatters
+
+  You can implement your custom formatters by overriding `Beamchmark.Formatter` behaviour.
 
 ## Copyright and License
-
 Copyright 2021, [Software Mansion](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=beamchmark)
 
 [![Software Mansion](https://logo.swmansion.com/logo?color=white&variant=desktop&width=200&tag=membrane-github)](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=beamchmark)
