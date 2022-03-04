@@ -38,9 +38,6 @@ Currently, Beamchmark supports two ways of printing its reports:
 
   This is the default formatter, it will print the report on standard output.
 
-  <details>
-  <summary>Example output</summary>
-  <br>
   ```txt
   > mix run examples/advanced.exs
 
@@ -158,16 +155,12 @@ Currently, Beamchmark supports two ways of printing its reports:
   --------------------
   1428303  -109 -0.007630851603039446%
   ```
-  </details>
 
 * `Beamchmark.Formatters.HTML`
 
   The HTML formatter will save the report to an HTML file.
-  <details>
-  <summary>Example output</summary>
-  <br>
-  (insert screenshot here)
-  </details> 
+  
+  ![Screenshot of an HTML report](https://user-images.githubusercontent.com/31112335/156745872-6a3724d8-7b8d-4d10-a5d0-5e8dd39197d8.png)
 
 * Custom formatters
 
