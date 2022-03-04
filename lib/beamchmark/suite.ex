@@ -5,6 +5,8 @@ defmodule Beamchmark.Suite do
   """
 
   alias Beamchmark.Scenario
+  alias Beamchmark.Suite.CPU.CPUTask
+
   alias __MODULE__.{Configuration, SystemInfo, Measurements}
 
   @type t :: %__MODULE__{
@@ -26,7 +28,7 @@ defmodule Beamchmark.Suite do
   @old_suite_filename "suite_old"
 
   @spec init(Scenario.t(), Configuration.t()) :: t()
-  def init(scenario, %Configuration{} = configuration) do
+  def init(scenario, configuration) do
     implements_scenario? =
       scenario.module_info(:attributes)
       |> Keyword.get(:behaviour, [])
@@ -55,6 +57,13 @@ defmodule Beamchmark.Suite do
 
     Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
     measurements = Measurements.gather(config.duration)
+
+    # TODO There CPU Measurements tool needs to be started for X seconds and then stopped.
+
+    cpu_task = CPUTask.start_link()
+
+    result = Task.await(cpu_task, :infinity)
+    IO.inspect(result)
 
     case Task.await(task, :infinity) do
       :ok ->

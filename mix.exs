@@ -27,7 +27,7 @@ defmodule Beamchmark.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :runtime_tools, :eex]
+      extra_applications: [:logger, :runtime_tools, :eex, :os_mon]
     ]
   end
 
