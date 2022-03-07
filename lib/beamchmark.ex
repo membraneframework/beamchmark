@@ -64,7 +64,7 @@ defmodule Beamchmark do
   If `compare?` option equals `true`, invocation of this function will also compare new measurements with the last ones.
   """
   @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok
-  def run(scenario, opts) do
+  def run(scenario, opts \\ []) do
     config = %Beamchmark.Suite.Configuration{
       duration: Keyword.get(opts, :duration, @default_duration),
       delay: Keyword.get(opts, :delay, @default_delay),
