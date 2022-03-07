@@ -1,0 +1,15 @@
+<h2>Configuration</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Duration [s]</th>
+      <th>Delay [s]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= configuration.duration %></td>
+      <td><%= configuration.delay %></td>
+    </tr>
+  </tbody>
+</table>

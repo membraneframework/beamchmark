@@ -27,7 +27,7 @@ defmodule Beamchmark.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :eex]
     ]
   end
 
@@ -59,7 +59,7 @@ defmodule Beamchmark.MixProject do
       main: "readme",
       extras: ["README.md", "LICENSE"],
       source_ref: "v#{@version}",
-      nest_modules_by_prefix: [Beamchmark.Suite]
+      nest_modules_by_prefix: [Beamchmark.Suite, Beamchmark.Formatters]
     ]
   end
 end

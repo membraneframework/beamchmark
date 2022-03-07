@@ -17,19 +17,19 @@ defmodule Beamchmark.Formatter do
   @typedoc """
   Options given to formatters (defined by formatters authors).
   """
-  @type options_t :: map()
+  @type options_t :: Keyword.t()
 
   @doc """
   Takes the suite and transforms it into some internal representation, that later on will be passed to
   `write/2`.
   """
-  @callback format(Suite.t(), options_t) :: any
+  @callback format(Suite.t(), options_t) :: any()
 
   @doc """
   Works like `format/2`, but can provide additional information by comparing the latest suite with the
   previous one (passed as the second argument).
   """
-  @callback format(Suite.t(), Suite.t(), options_t) :: any
+  @callback format(Suite.t(), Suite.t(), options_t) :: any()
 
   @doc """
   Takes the return value of `format/1` or `format/2` and outputs it in a convenient form (stdout, file, UI...).
@@ -86,19 +86,19 @@ defmodule Beamchmark.Formatter do
     |> Enum.map(fn formatter ->
       case formatter do
         {module, options} -> {module, options}
-        module -> {module, %{}}
+        module -> {module, []}
       end
     end)
     |> tap(fn formatters -> Enum.each(formatters, &validate/1) end)
   end
 
-  defp validate({formatter, options}) when not is_map(options),
-    do:
+  defp validate({formatter, options}) do
+    unless Keyword.keyword?(options) do
       raise(
-        "Options for #{inspect(formatter)} need to be passed as a map. Got: #{inspect(options)}."
+        "Options for #{inspect(formatter)} need to be passed as a keyword list. Got: #{inspect(options)}."
       )
+    end
 
-  defp validate({formatter, _options}) do
     implements_formatter? =
       formatter.module_info(:attributes)
       |> Keyword.get(:behaviour, [])

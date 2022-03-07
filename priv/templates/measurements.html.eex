@@ -1,0 +1,196 @@
+<h2>Results</h2>
+<h3>Basic metrics</h3>
+<div id="basicMetrics"></div>
+<h3>Utilization by scheduler type</h3>
+<div id="schedulersByType"></div>
+<h3>Total scheduler utilization</h3>
+<div id="totalSchedulers"></div>
+<h3>Utilization by scheduler type and ID</h3>
+<div id="normalScheduler"></div>
+<div id="cpuScheduler"></div>
+<div id="ioScheduler"></div>
+<script>
+  <% has_base = not is_nil(base_measurements) %>
+  let indicatorConfig =  {
+    type: "indicator",
+    number: { font: { size: 70 } },
+    <%= if has_base do %>
+    mode: "number+delta"
+    <% else %>
+    mode: "number"
+    <% end %>
+  };
+  let deltaConfig = {
+    relative: true,
+    valueformat: ".2%",
+    increasing: { color: "#FF4136" },
+    decreasing: { color: "#3D9970" }
+  };
+  let layoutConfig = {
+    margin: {t: 0, b: 0, l: 0, r: 0}
+  };
+  let plotlyConfig = {
+    displaylogo: false,
+    responsive: true
+  };
+
+  let basicMetrics = [
+    {
+      title: { text: "Reductions" },
+      value: <%= new_measurements.reductions %>,
+      <%= if has_base do %>
+      delta: { reference: <%= base_measurements.reductions %>, ...deltaConfig },
+      <% end %>
+      domain: { row: 0, column: 0 },
+      ...indicatorConfig
+    },
+    {
+      title: { text: "Context switches" },
+      value: <%= new_measurements.context_switches %>,
+      <%= if has_base do %>
+      delta: { reference: <%= base_measurements.context_switches %>, ...deltaConfig },
+      <% end %>
+      domain: { row: 0, column: 1 },
+      ...indicatorConfig
+    }
+  ];
+
+  let basicMetricsLayout = {
+    grid: { rows: 1, columns: 2, pattern: "independent" },
+    height: 200,
+    ...layoutConfig
+  };
+
+  Plotly.newPlot("basicMetrics", basicMetrics, basicMetricsLayout, plotlyConfig);
+
+  let schedulersByType = [
+    <%= for {title, column} <- Enum.with_index(["Normal", "CPU", "IO"]) do %>
+      <%
+        metric = as_downcase_atom("total_#{title}")
+        {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
+        {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
+      %>
+      {
+        title: { text: "<%= title %> Schedulers [s]" },
+        value: <%= new_seconds %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_seconds %>, ...deltaConfig },
+        <% end %>
+        domain: { row: 0, column: <%= column %> },
+        ...indicatorConfig
+      },
+      {
+        title: { text: "<%= title %> Schedulers [%]" },
+        value: <%= new_percent %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_percent %>, ...deltaConfig },
+        <% end %>
+        domain: { row: 1, column: <%= column %> },
+        ...indicatorConfig
+      },
+    <% end %>
+  ];
+
+  let schedulersByTypeLayout = {
+    grid: { rows: 2, columns: 3, pattern: "independent" },
+    ...layoutConfig
+  };
+
+  Plotly.newPlot("schedulersByType", schedulersByType, schedulersByTypeLayout, plotlyConfig);
+
+  let totalSchedulers = [
+    <%= for {title, column} <- Enum.with_index(["Total", "Weighted"]) do %>
+      <%
+        metric = as_downcase_atom(title)
+        {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
+        {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
+      %>
+      {
+        title: { text: "<%= title %> utilization [s]" },
+        value: <%= new_seconds %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_seconds %>, ...deltaConfig },
+        <% end %>
+        domain: { row: 0, column: <%= column %> },
+        ...indicatorConfig
+      },
+      {
+        title: { text: "<%= title %> utilization [%]" },
+        value: <%= new_percent %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_percent %>, ...deltaConfig },
+        <% end %>
+        domain: { row: 1, column: <%= column %> },
+        ...indicatorConfig
+      },
+    <% end %>
+  ];
+
+  let totalSchedulersLayout = {
+    grid: { rows: 2, columns: 2, pattern: "independent" },
+    ...layoutConfig
+  };
+
+  Plotly.newPlot("totalSchedulers", totalSchedulers, totalSchedulersLayout, plotlyConfig);
+
+  let schedulerLayout = {
+    barmode: "group",
+    xaxis: {
+      title: { text: "Scheduler ID" },
+    },
+    yaxis: {
+      title: { text: "Mean time spent busy [s]" }
+    }
+  };
+
+  <%= for {title, scheduler_type} <- Enum.map(["Normal", "CPU", "IO"], &{&1, as_downcase_atom(&1)}),
+    Enum.any?([new_measurements, base_measurements], &(not is_nil(&1) and was_busy?(&1.scheduler_info[scheduler_type])))
+  do %>
+    <%
+      div_id = Atom.to_string(scheduler_type) <> "Scheduler"
+      formatted_new = format_scheduler_info(new_measurements.scheduler_info[scheduler_type])
+    %>
+    let <%= div_id %> = [
+      <%= if has_base do %>
+      <% formatted_base = format_scheduler_info(base_measurements.scheduler_info[scheduler_type]) %>
+      {
+        name: "Base",
+        type: "bar",
+        marker: {
+          color: "#451F55",
+          opacity: 0.8,
+          line: {
+            color: "#22162B",
+            width: 1.5
+          }
+        },
+        x: [<%= formatted_base.scheduler_ids %>],
+        y: [<%= formatted_base.usage %>],
+        text: [<%= formatted_base.percent_usage %>]
+      },
+      <% end %>
+      {
+        name: "New",
+        type: "bar",
+        marker: {
+          color: "#E54F6D",
+          opacity: 0.8,
+          line: {
+            color: "#451F55",
+            width: 1.5
+          }
+        },
+        x: [<%= formatted_new.scheduler_ids %>],
+        y: [<%= formatted_new.usage %>],
+        text: [<%= formatted_new.percent_usage %>]
+      }
+    ];
+
+    Plotly.newPlot(
+      "<%= div_id %>",
+      <%= div_id %>,
+      { title: "<%= title %> Scheduler", ...schedulerLayout },
+      plotlyConfig
+    );
+  <% end %>
+</script>
