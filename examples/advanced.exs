@@ -1,4 +1,6 @@
 defmodule AdvancedScenario do
+  @moduledoc false
+
   @behaviour Beamchmark.Scenario
 
   @out_dir __MODULE__ |> Atom.to_string() |> String.trim_leading("Elixir.")
