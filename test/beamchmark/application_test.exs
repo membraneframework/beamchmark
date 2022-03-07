@@ -1,6 +1,5 @@
 defmodule Beamchmark.ApplicationTest do
   use ExUnit.Case, async: true
-  doctest Beamchmark
 
   @temp_directory TestUtils.temporary_dir(__MODULE__)
 

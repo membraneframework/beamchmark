@@ -15,15 +15,15 @@ defmodule Beamchmark.Formatters.HTMLTest do
   end
 
   describe "HTML formatter" do
-    test "returns a string from format/2", %{suite: suite} do
+    test "format/2 returns a string", %{suite: suite} do
       assert is_binary(HTML.format(suite, []))
     end
 
-    test "returns a string from format/3", %{suite: suite} do
+    test "format/3 returns a string", %{suite: suite} do
       assert is_binary(HTML.format(suite, suite, []))
     end
 
-    test "on format/2 respects inline_assets? flag", %{suite: suite} do
+    test "format/2 respects inline_assets? flag", %{suite: suite} do
       html_assets_linked = HTML.format(suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, inline_assets?: true)
 
@@ -33,7 +33,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
       end)
     end
 
-    test "on format/3 respects inline_assets? flag", %{suite: suite} do
+    test "format/3 respects inline_assets? flag", %{suite: suite} do
       html_assets_linked = HTML.format(suite, suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, suite, inline_assets?: true)
 
@@ -43,7 +43,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
       end)
     end
 
-    test "on format/2 generates reports of predictable size", %{suite: suite} do
+    test "format/2 generates reports of predictable size", %{suite: suite} do
       html_assets_linked = HTML.format(suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, inline_assets?: true)
 
@@ -59,7 +59,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
                       0.5 * expected_size_inlined
     end
 
-    test "on format/3 generates reports of predictable size", %{suite: suite} do
+    test "format/3 generates reports of predictable size", %{suite: suite} do
       html_assets_linked = HTML.format(suite, suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, suite, inline_assets?: true)
 
@@ -75,7 +75,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
                       0.5 * expected_size_inlined
     end
 
-    test "on write/2 returns :ok and creates an html file" do
+    test "write/2 returns :ok and creates an html file" do
       mock_html = "some html content here"
       options = [output_path: Path.join([@temp_directory, "test.html"]), auto_open?: false]
 

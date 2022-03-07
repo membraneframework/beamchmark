@@ -14,15 +14,15 @@ defmodule Beamchmark.Formatters.ConsoleTest do
   end
 
   describe "Console formatter" do
-    test "returns a string from format/2", %{suite: suite} do
+    test "format/2 returns a string", %{suite: suite} do
       assert is_binary(Console.format(suite, []))
     end
 
-    test "returns a string from format/3", %{suite: suite} do
+    test "format/3 returns a string", %{suite: suite} do
       assert is_binary(Console.format(suite, suite, []))
     end
 
-    test "returns :ok from write/2" do
+    test "write/2 returns :ok" do
       assert :ok = Console.write("should print on console", [])
     end
   end

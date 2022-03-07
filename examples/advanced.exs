@@ -20,7 +20,7 @@ defmodule AdvancedScenario do
 
     @functions
     |> Stream.cycle()
-    |> Enum.take(@num_schedulers)
+    |> Stream.take(@num_schedulers)
     |> Task.async_stream(
       fn function ->
         {:name, name} = Function.info(function, :name)
