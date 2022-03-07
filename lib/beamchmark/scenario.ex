@@ -11,5 +11,5 @@ defmodule Beamchmark.Scenario do
   @doc """
   The function that will be called during benchmarking.
   """
-  @callback run() :: :ok | {:error, any()}
+  @callback run() :: any()
 end

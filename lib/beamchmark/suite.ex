@@ -46,7 +46,6 @@ defmodule Beamchmark.Suite do
 
   @spec run(t()) :: t()
   def run(%__MODULE__{scenario: scenario, configuration: config} = suite) do
-    # TODO: what about scenarios that take less than `delay + duration` seconds or run indefinitely?
     Mix.shell().info("Running scenario \"#{inspect(scenario)}\"...")
     task = Task.async(fn -> suite.scenario.run() end)
 
@@ -56,15 +55,23 @@ defmodule Beamchmark.Suite do
     Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
     measurements = Measurements.gather(config.duration)
 
-    case Task.await(task, :infinity) do
-      :ok ->
+    case Task.shutdown(task, :brutal_kill) do
+      # the scenario was still running
+      nil ->
         %__MODULE__{suite | measurements: measurements}
 
-      {:error, reason} ->
-        raise "The scenario failed due to #{inspect(reason)}."
+      # the scenario has finished before (config.delay + config.duration) seconds
+      {:ok, _result} ->
+        Mix.shell().error("""
+        The scenario had been complete before the measurements ended.
+        Consider decreasing duration/delay or making the scenario run longer to get more accurate results.
+        """)
 
-      value ->
-        raise "Invalid return value from scenario: #{inspect(value)}. Expected output is ether `:ok` or `{:error, reason}`."
+        %__MODULE__{suite | measurements: measurements}
+
+      # should never happen
+      {:exit, reason} ->
+        raise "The scenario process unexpectedly died due to #{inspect(reason)}."
     end
   end
 
