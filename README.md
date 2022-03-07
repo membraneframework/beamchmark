@@ -160,7 +160,7 @@ Currently, Beamchmark supports two ways of printing its reports:
 
   The HTML formatter will save the report to an HTML file.
   
-  ![Screenshot of an HTML report](https://user-images.githubusercontent.com/31112335/156745872-6a3724d8-7b8d-4d10-a5d0-5e8dd39197d8.png)
+  ![Screenshot of an HTML report](https://user-images.githubusercontent.com/31112335/157019137-0f7dd5f9-d59a-4656-9bee-8ec84e482169.png)
 
 * Custom formatters
 
