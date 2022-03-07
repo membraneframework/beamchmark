@@ -7,7 +7,7 @@ body {
 }
 
 section {
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 
 h1 {
@@ -37,11 +37,11 @@ thead tr {
 }
 
 th, td {
-    padding: 15px;
+    padding: 10px;
 }
 
 .header, .footer {
-    padding: 20px;
+    padding: 10px;
     background-color: #451F55;
     border: 3px solid #E54F6D;
     color: #FFFFFF;
