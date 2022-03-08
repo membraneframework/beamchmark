@@ -4,6 +4,7 @@ defmodule Beamchmark.Suite.Measurements do
   """
 
   alias __MODULE__.SchedulerInfo
+  alias __MODULE__.CpuInfo
 
   @type reductions_t() :: non_neg_integer()
   @type context_switches_t() :: non_neg_integer()
@@ -11,7 +12,8 @@ defmodule Beamchmark.Suite.Measurements do
   @type t :: %__MODULE__{
           scheduler_info: SchedulerInfo.t(),
           reductions: reductions_t(),
-          context_switches: context_switches_t()
+          context_switches: context_switches_t(),
+          cpu_info: CpuInfo.t() | nil
         }
 
   @enforce_keys [
@@ -19,7 +21,12 @@ defmodule Beamchmark.Suite.Measurements do
     :reductions,
     :context_switches
   ]
-  defstruct @enforce_keys
+  defstruct [
+    :scheduler_info,
+    :reductions,
+    :context_switches,
+    :cpu_info
+  ]
 
   @spec gather(timeout()) :: t()
   def gather(duration) do

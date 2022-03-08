@@ -13,7 +13,6 @@ defmodule Beamchmark.Formatters.Console do
     system_info = format_system_info(suite.system_info)
     configuration = format_configuration(suite.configuration)
     measurements = format_measurements(suite.measurements)
-
     Enum.join([system_info, configuration, measurements], "\n")
   end
 
@@ -66,6 +65,9 @@ defmodule Beamchmark.Formatters.Console do
 
     #{entry_header("Context Switches")}
     #{format_numbers(measurements.context_switches)}
+
+    #{entry_header("CPU Usage Average")}
+    #{measurements.cpu_info.average_all}
     """
   end
 

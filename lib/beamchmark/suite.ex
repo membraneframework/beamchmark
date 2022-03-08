@@ -62,7 +62,12 @@ defmodule Beamchmark.Suite do
 
     cpu_task = CPUTask.start_link()
 
-    _result = Task.await(cpu_task, :infinity)
+    {:ok, cpu_info} = Task.await(cpu_task, :infinity)
+
+    measurements = %__MODULE__.Measurements{
+      measurements
+      | cpu_info: cpu_info
+    }
 
     case Task.await(task, :infinity) do
       :ok ->

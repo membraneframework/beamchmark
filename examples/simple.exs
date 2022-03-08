@@ -8,4 +8,4 @@ defmodule SimpleScenario do
   end
 end
 
-Beamchmark.run(SimpleScenario)
+Beamchmark.run(SimpleScenario, duration: 10, delay: 1, formatters: [Beamchmark.Formatters.Console])
