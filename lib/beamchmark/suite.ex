@@ -28,7 +28,7 @@ defmodule Beamchmark.Suite do
   @old_suite_filename "suite_old"
 
   @spec init(Scenario.t(), Configuration.t()) :: t()
-  def init(scenario, configuration) do
+  def init(scenario, %Configuration{} = configuration) do
     implements_scenario? =
       scenario.module_info(:attributes)
       |> Keyword.get(:behaviour, [])
