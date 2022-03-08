@@ -10,14 +10,14 @@
 <div id="cpuScheduler"></div>
 <div id="ioScheduler"></div>
 <script>
-  <%= dont_compare = is_nil(base_measurements) %>
+  <% has_base = not is_nil(base_measurements) %>
   let indicatorConfig =  {
     type: "indicator",
-    number: { font: { size: 70 }},
-    <%= if dont_compare do %>
-    mode: "number"
-    <% else %>
+    number: { font: { size: 70 } },
+    <%= if has_base do %>
     mode: "number+delta"
+    <% else %>
+    mode: "number"
     <% end %>
   };
   let deltaConfig = {
@@ -27,8 +27,7 @@
     decreasing: { color: "#3D9970" }
   };
   let layoutConfig = {
-    margin: {t: 0, b: 0, l: 0, r: 0},
-    height: 200
+    margin: {t: 0, b: 0, l: 0, r: 0}
   };
   let plotlyConfig = {
     displaylogo: false,
@@ -39,7 +38,7 @@
     {
       title: { text: "Reductions" },
       value: <%= new_measurements.reductions %>,
-      <%= unless dont_compare do %>
+      <%= if has_base do %>
       delta: { reference: <%= base_measurements.reductions %>, ...deltaConfig },
       <% end %>
       domain: { row: 0, column: 0 },
@@ -48,7 +47,7 @@
     {
       title: { text: "Context switches" },
       value: <%= new_measurements.context_switches %>,
-      <%= unless dont_compare do %>
+      <%= if has_base do %>
       delta: { reference: <%= base_measurements.context_switches %>, ...deltaConfig },
       <% end %>
       domain: { row: 0, column: 1 },
@@ -58,59 +57,77 @@
 
   let basicMetricsLayout = {
     grid: { rows: 1, columns: 2, pattern: "independent" },
+    height: 200,
     ...layoutConfig
   };
 
   Plotly.newPlot("basicMetrics", basicMetrics, basicMetricsLayout, plotlyConfig);
 
   let schedulersByType = [
-    <%= for {metric, title, column} <- [
-      {:total_normal, "Normal Scheduler", 0},
-      {:total_cpu, "CPU Scheduler", 1},
-      {:total_io, "IO Scheduler", 2}
-    ] do %>
+    <%= for {title, column} <- Enum.with_index(["Normal", "CPU", "IO"]) do %>
+      <%
+        metric = as_downcase_atom("total_#{title}")
+        {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
+        {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
+      %>
       {
-        title: { text: "<%= title %> [s]" },
-        value: <%= elem(new_measurements.scheduler_info[metric], 0) %>,
-        <%= unless dont_compare do %>
-        delta: { reference: <%= elem(base_measurements.scheduler_info[metric], 0) %>, ...deltaConfig },
+        title: { text: "<%= title %> Schedulers [s]" },
+        value: <%= new_seconds %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_seconds %>, ...deltaConfig },
         <% end %>
         domain: { row: 0, column: <%= column %> },
+        ...indicatorConfig
+      },
+      {
+        title: { text: "<%= title %> Schedulers [%]" },
+        value: <%= new_percent %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_percent %>, ...deltaConfig },
+        <% end %>
+        domain: { row: 1, column: <%= column %> },
         ...indicatorConfig
       },
     <% end %>
   ];
 
   let schedulersByTypeLayout = {
-    grid: { rows: 1, columns: 3, pattern: "independent" },
+    grid: { rows: 2, columns: 3, pattern: "independent" },
     ...layoutConfig
   };
 
   Plotly.newPlot("schedulersByType", schedulersByType, schedulersByTypeLayout, plotlyConfig);
 
   let totalSchedulers = [
-    {
-      title: { text: "Total utilization [s]" },
-      value: <%= elem(new_measurements.scheduler_info.total, 0) %>,
-      <%= unless dont_compare do %>
-      delta: { reference: <%= elem(base_measurements.scheduler_info.total, 0) %>, ...deltaConfig },
-      <% end %>
-      domain: { row: 0, column: 0 },
-      ...indicatorConfig
-    },
-    {
-      title: { text: "Weighted utilization [s]" },
-      value: <%= elem(new_measurements.scheduler_info.weighted, 0) %>,
-      <%= unless dont_compare do %>
-      delta: { reference: <%= elem(base_measurements.scheduler_info.weighted, 0) %>, ...deltaConfig },
-      <% end %>
-      domain: { row: 0, column: 1 },
-      ...indicatorConfig
-    }
+    <%= for {title, column} <- Enum.with_index(["Total", "Weighted"]) do %>
+      <%
+        metric = as_downcase_atom(title)
+        {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
+        {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
+      %>
+      {
+        title: { text: "<%= title %> utilization [s]" },
+        value: <%= new_seconds %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_seconds %>, ...deltaConfig },
+        <% end %>
+        domain: { row: 0, column: <%= column %> },
+        ...indicatorConfig
+      },
+      {
+        title: { text: "<%= title %> utilization [%]" },
+        value: <%= new_percent %>,
+        <%= if has_base do %>
+        delta: { reference: <%= base_percent %>, ...deltaConfig },
+        <% end %>
+        domain: { row: 1, column: <%= column %> },
+        ...indicatorConfig
+      },
+    <% end %>
   ];
 
   let totalSchedulersLayout = {
-    grid: { rows: 1, columns: 2, pattern: "independent" },
+    grid: { rows: 2, columns: 2, pattern: "independent" },
     ...layoutConfig
   };
 
@@ -126,7 +143,7 @@
     }
   };
 
-  <%= for {scheduler_type, title} <- [{:normal, "Normal"}, {:cpu, "CPU"}, {:io, "IO"}],
+  <%= for {title, scheduler_type} <- Enum.map(["Normal", "CPU", "IO"], &{&1, as_downcase_atom(&1)}),
     Enum.any?([new_measurements, base_measurements], &(not is_nil(&1) and was_busy?(&1.scheduler_info[scheduler_type])))
   do %>
     <%
@@ -134,7 +151,7 @@
       formatted_new = format_scheduler_info(new_measurements.scheduler_info[scheduler_type])
     %>
     let <%= div_id %> = [
-      <%= unless dont_compare do %>
+      <%= if has_base do %>
       <% formatted_base = format_scheduler_info(base_measurements.scheduler_info[scheduler_type]) %>
       {
         name: "Base",

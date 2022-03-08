@@ -47,7 +47,7 @@ defmodule Beamchmark do
   * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration}` seconds.
   * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay}` seconds.
   * `formatters` - list of formatters that will be applied to the result. By default contains only `#{inspect(@default_formatter)}`.
-  * `compare?` - boolean indicating whether `#{inspect(__MODULE__)}` should pass previous results to formatters. Defaults to `#{inspect(@default_compare)}`
+  * `compare?` - boolean indicating whether `#{inspect(__MODULE__)}` should pass previous results to formatters. Defaults to `#{inspect(@default_compare)}.`
   * `output_dir` - directory where results of benchmarking will be saved. Defaults to "`beamchmark`" directory under location provided by `System.tmp_dir!/0`.
   """
   @type options_t() :: [
@@ -61,10 +61,10 @@ defmodule Beamchmark do
   @doc """
   Runs scenario and benchmarks EVM performance.
 
-  If `compare?` option equals `true`, invocation of this function will also compare new measurements with the previous.
+  If `compare?` option equals `true`, invocation of this function will also compare new measurements with the last ones.
   """
   @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok
-  def run(scenario, opts) do
+  def run(scenario, opts \\ []) do
     config = %Beamchmark.Suite.Configuration{
       duration: Keyword.get(opts, :duration, @default_duration),
       delay: Keyword.get(opts, :delay, @default_delay),

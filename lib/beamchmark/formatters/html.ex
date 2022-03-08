@@ -43,6 +43,12 @@ defmodule Beamchmark.Formatters.HTML do
     output_path = options |> Keyword.get(:output_path, @default_output_path) |> Path.expand()
     auto_open? = Keyword.get(options, :auto_open?, @default_auto_open)
 
+    dirname = Path.dirname(output_path)
+
+    unless File.exists?(dirname) do
+      File.mkdir_p!(dirname)
+    end
+
     File.write!(output_path, content)
     Mix.shell().info("The HTML file was successfully saved under #{output_path}!")
 

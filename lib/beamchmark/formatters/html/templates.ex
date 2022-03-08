@@ -53,4 +53,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
   def was_busy?(scheduler_usage_info) do
     Enum.any?(scheduler_usage_info, fn {_scheduler_id, {usage, _percent_usage}} -> usage > 0 end)
   end
+
+  @spec as_downcase_atom(String.t()) :: atom()
+  def as_downcase_atom(metric), do: metric |> String.downcase() |> String.to_existing_atom()
 end

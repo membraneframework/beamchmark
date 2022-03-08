@@ -3,9 +3,9 @@ defmodule SimpleScenario do
 
   @impl true
   def run() do
-    Enum.map(1..1_000_000, fn i -> Integer.pow(i, 1) end)
+    Enum.map(1..1_000_000, fn i -> Integer.pow(i, 2) end)
     :ok
   end
 end
 
-Beamchmark.run(SimpleScenario, duration: 10, delay: 1, formatters: [Beamchmark.Formatters.Console])
+Beamchmark.run(SimpleScenario, duration: 5, delay: 1)

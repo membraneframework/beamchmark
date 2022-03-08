@@ -23,13 +23,13 @@ defmodule Beamchmark.Formatter do
   Takes the suite and transforms it into some internal representation, that later on will be passed to
   `write/2`.
   """
-  @callback format(Suite.t(), options_t) :: any
+  @callback format(Suite.t(), options_t) :: any()
 
   @doc """
   Works like `format/2`, but can provide additional information by comparing the latest suite with the
   previous one (passed as the second argument).
   """
-  @callback format(Suite.t(), Suite.t(), options_t) :: any
+  @callback format(Suite.t(), Suite.t(), options_t) :: any()
 
   @doc """
   Takes the return value of `format/1` or `format/2` and outputs it in a convenient form (stdout, file, UI...).
