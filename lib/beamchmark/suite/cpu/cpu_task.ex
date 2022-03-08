@@ -27,11 +27,6 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
     :ok
   end
 
-  defp stop_cpu_sup() do
-    :cpu_sup.stop()
-    :ok
-  end
-
   @spec run_poll(number, number) :: {:ok, CpuInfo.t()} | {:err, String.t()}
   defp run_poll(timeout, duration) do
     iterations_number = trunc(duration / timeout)
@@ -42,7 +37,6 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
         snap_statistics(acc, timeout)
       end)
 
-    :ok = stop_cpu_sup()
     {:ok, get_statistics(statistics)}
   end
 
