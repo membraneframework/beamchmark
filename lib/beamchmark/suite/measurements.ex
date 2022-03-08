@@ -30,8 +30,6 @@ defmodule Beamchmark.Suite.Measurements do
 
   @spec gather(timeout()) :: t()
   def gather(duration) do
-    Mix.shell().info("Gathering BEAM statistics for #{duration} seconds")
-
     scheduler_info =
       :scheduler.utilization(duration)
       |> SchedulerInfo.from_sched_util_result()
