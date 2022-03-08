@@ -13,77 +13,88 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   alias Beamchmark.Math
 
   @typedoc """
-  Single core snap statistics
+  Single core snap statistics gathered via snapshot
   """
   @type cpu_core_usage_t ::
-          {core_id :: integer(), usage :: Math.percent_t() | Math.percent_diff_t()}
-
-  @typedoc """
-  Average single core snap statistics
-  Gathered by taking a few snapshots and joining them by cores.
-  """
-  @type average_by_core_t ::
-          {core_id :: integer(), usage :: Math.percent_t() | Math.percent_diff_t()}
-
-  @typedoc """
-  All information gathered via single snapshot, this value can
-  be unstable and needs to be stabilized.
-  """
-  @type cpu_usage_unstable_t ::
-          {time_stamp :: integer(),cpu_usage :: [cpu_core_usage_t()], average_all_cores :: Math.percent_t()}
+          %{(core_id :: integer()) => usage :: Math.percent_t() | Math.percent_diff_t()}
 
   @typedoc """
   All information gathered via single snapshot
-  including `timestamp` (integer value since start of measuring)
   cpu_usage is average statistics for all cores
   """
-  @type cpu_usage_stable_t ::
-          {time_stamp :: integer(), cpu_usage :: [average_by_core_t()], average_all_cores :: Math.percent_t()}
+  @type cpu_usage_t ::
+          %{
+            cpu_usage: cpu_usage :: [cpu_core_usage_t()],
+            average_all_cores: average_all_cores :: Math.percent_t()
+          }
+
+  # TODO Probably is useless
+  # @typedoc """
+  # Map of all snaphots taken
+  # """
+  # @type cpu_snapshot_t ::
+  #         %{(time_stamp :: integer()) => cpu_usage :: cpu_usage_t()}
 
   @typedoc """
   All information gathered via single snapshot including averages
   `all_average` is average from all time_stamps
   """
+
   @type t :: %__MODULE__{
-          cpu_usage_stable_t: cpu_usage_stable_t,
-          all_average: average_by_core_t()
+          cpu_snapshots: [cpu_usage_t()],
+          average_all: Math.percent_t()
         }
 
-  defstruct cpu_usage_stable_t: [],
-            all_average: {}
+  defstruct cpu_snapshots: [],
+            average_all: 0
 
   @doc """
-  converts output of `:cpu_sup.util([:per_cpu])` to `cpu_usage_unstable_t`
+  converts output of `:cpu_sup.util([:per_cpu])` to `cpu_usage_t`
   """
-  @spec convert_from_cpu_sup_util(any()) :: cpu_usage_unstable_t()
+  @spec convert_from_cpu_sup_util(any()) :: cpu_usage_t()
   def convert_from_cpu_sup_util(cpu_util_result) do
-    # TODO
-    Enum.reduce(cpu_util_result, [], fn element, acc ->
-      current_core = [
-        core_id: elem(element, 0),
-        usage: elem(element, 1)
-      ]
+    cpu_core_usage_list =
+      Enum.reduce(cpu_util_result, [], fn {core_id, usage, _idle, _mix} = _element, acc ->
+        cpu_core_usage = %{
+          core_id: core_id,
+          usage: usage
+        }
 
-      [current_core | acc]
-    end)
+        [cpu_core_usage | acc]
+      end)
+
+    average_all_cores =
+      Enum.reduce(cpu_core_usage_list, 0, fn map, acc ->
+        acc + map.usage
+      end) / length(cpu_core_usage_list)
+
+    %{cpu_usage: cpu_core_usage_list, average_all_cores: average_all_cores}
   end
 
   # @doc """
-  # Converts list of `cpu_usage_unstable_t` to `cpu_usage_stable_t`
+  # Converts list of `cpu_usage_t` to `cpu_usage_t`
   # By calculating the average and removing outliers
   # """
-  # @spec stabilize_cpu_usage([cpu_usage_unstable_t()], integer()) :: cpu_usage_stable_t()
+  # @spec stabilize_cpu_usage([cpu_usage_t()], integer()) :: cpu_usage_t()
   # def stabilize_cpu_usage(cpu_usage_list, time_stamp) do
   #   # TODO
   # end
 
   @doc """
-  Converts list of `cpu_usage_unstable_t` to ` #{__MODULE__}.t()`
+  Converts list of `cpu_usage_t` to ` #{__MODULE__}.t()`
   By calculating the average
   """
-  @spec combine_cpu_statistics([cpu_usage_unstable_t()]) :: t()
+  @spec combine_cpu_statistics([cpu_usage_t()]) :: t()
   def combine_cpu_statistics(cpu_usage_unstable_list) do
     # TODO
-    cpu_usage_unstable_list
+    average_all =
+      Enum.reduce(cpu_usage_unstable_list, 0, fn map, acc ->
+        acc + map.average_all_cores
+      end) / length(cpu_usage_unstable_list)
+
+    %__MODULE__{
+      cpu_snapshots: cpu_usage_unstable_list,
+      average_all: average_all
+    }
   end
 end
