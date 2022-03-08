@@ -2,9 +2,9 @@ defmodule AdvancedScenario do
   @behaviour Beamchmark.Scenario
 
   def run_and_print() do
-   IO.inspect :cpu_sup.util([:per_cpu])
-   Process.sleep(100)
-   run_and_print()
+    IO.inspect(:cpu_sup.util([:per_cpu]))
+    Process.sleep(100)
+    run_and_print()
   end
 
   @impl true
@@ -27,4 +27,4 @@ end
 # Process.sleep(1000)
 # IO.inspect :cpu_sup.util([:per_cpu])
 
- Beamchmark.run(AdvancedScenario, [duration: 10, delay: 1, formatters: [Beamchmark.Formatters.HTML]])
+Beamchmark.run(AdvancedScenario, duration: 10, delay: 1, formatters: [Beamchmark.Formatters.HTML])

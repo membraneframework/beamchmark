@@ -9,14 +9,10 @@ defmodule CPUTaskTest do
     :ok
   end
 
-  test "get_cpu_usage" do
-    IO.inspect(CPUTask.get_cpu_usage())
-    assert :ok == :ok
-  end
-
   test "cpu_task" do
     cpu_task = CPUTask.start_link(1000, 10)
     result = Task.await(cpu_task, :infinity)
+    IO.puts("Result measurements for CPU task:")
     IO.inspect(result)
     assert :ok == :ok
   end

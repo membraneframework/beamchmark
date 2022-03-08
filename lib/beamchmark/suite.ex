@@ -58,12 +58,11 @@ defmodule Beamchmark.Suite do
     Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
     measurements = Measurements.gather(config.duration)
 
-    # TODO There CPU Measurements tool needs to be started for X seconds and then stopped.
+    # TODO There cpu_task is handled
 
     cpu_task = CPUTask.start_link()
 
-    result = Task.await(cpu_task, :infinity)
-    IO.inspect(result)
+    _result = Task.await(cpu_task, :infinity)
 
     case Task.await(task, :infinity) do
       :ok ->
