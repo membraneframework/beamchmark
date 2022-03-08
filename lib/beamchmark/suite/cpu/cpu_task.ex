@@ -1,11 +1,19 @@
 defmodule Beamchmark.Suite.CPU.CPUTask do
+  @moduledoc """
+  This module contains the CPU benchmarking task.
+
+  Run example:
+  ```
+  CPUTask.start_link()
+  ```
+  """
   use Task
 
   alias Beamchmark.Suite.Measurements.CpuInfo
   # timeout in milliseconds
   @timeout 1000
   # Duration in milliseconds
-  @duration 10000
+  @duration 10_000
 
   @spec start_link(number, number) :: Task.t()
   def start_link(timeout \\ @timeout, duration \\ @duration) do
@@ -24,7 +32,7 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
     :ok
   end
 
-  @spec run_poll(number, number) :: CpuInfo.t()
+  @spec run_poll(number, number) :: {:ok, CpuInfo.t()} | {:err, String.t()}
   defp run_poll(timeout, duration) do
     iterations_number = trunc(duration / timeout)
     :ok = start_cpu_sup()
@@ -35,7 +43,7 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
       end)
 
     :ok = stop_cpu_sup()
-    get_statistics(statistics)
+    {:ok, get_statistics(statistics)}
   end
 
   @spec get_cpu_usage() :: CpuInfo.cpu_usage_t()
