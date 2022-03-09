@@ -63,7 +63,7 @@ defmodule Beamchmark.Suite do
       # the scenario has finished before (config.delay + config.duration) seconds
       {:ok, _result} ->
         Mix.shell().error("""
-        The scenario had been complete before the measurements ended.
+        The scenario had been completed before the measurements ended.
         Consider decreasing duration/delay or making the scenario run longer to get more accurate results.
         """)
 
