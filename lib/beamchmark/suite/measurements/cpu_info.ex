@@ -84,4 +84,12 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
       average_all: average_all
     }
   end
+
+  @spec diff(t(), t()) :: t()
+  def diff(base, new) do
+    %__MODULE__{
+      cpu_snapshots: base.cpu_snapshots,
+      average_all: new.average_all - base.average_all
+    }
+  end
 end

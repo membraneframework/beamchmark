@@ -67,7 +67,7 @@ defmodule Beamchmark.Formatters.Console do
     #{format_numbers(measurements.context_switches)}
 
     #{entry_header("CPU Usage Average")}
-    #{measurements.cpu_info.average_all}
+    #{measurements.cpu_info.average_all |> convert_float_to_percent(2)}%
     """
   end
 
@@ -81,7 +81,12 @@ defmodule Beamchmark.Formatters.Console do
     #{format_numbers(measurements.reductions, measurements_diff.reductions)}
 
     #{entry_header("Context Switches")}
-    #{format_numbers(measurements.context_switches, measurements_diff.context_switches)}
+    #{format_numbers(measurements.context_switches,
+    measurements_diff.context_switches)}
+
+    #{entry_header("CPU Usage Average")}
+    #{format_percent_diff(measurements.cpu_info.average_all,
+    measurements_diff.cpu_info.average_all)}
     """
   end
 
@@ -137,6 +142,10 @@ defmodule Beamchmark.Formatters.Console do
     "#{util} #{percent}%"
   end
 
+  defp convert_float_to_percent(float, percision) do
+    float |> Float.round(percision)
+  end
+
   defp format_scheduler_entry(sched_usage, sched_usage_diff)
        when is_map(sched_usage) and is_map(sched_usage_diff) do
     Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
@@ -161,6 +170,13 @@ defmodule Beamchmark.Formatters.Console do
     percent_diff = Math.percent_diff(number - number_diff, number)
 
     "#{number} #{color} #{number_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
+  end
+
+  defp format_percent_diff(percent, percent_diff) do
+    color = get_color(percent_diff)
+    percent_diff = Math.percent_diff(percent - percent_diff, percent)
+
+    "#{percent}% #{color} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp section_header(text) do

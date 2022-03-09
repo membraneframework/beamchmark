@@ -49,11 +49,13 @@ defmodule Beamchmark.Suite.Measurements do
   @spec diff(t(), t()) :: t()
   def diff(base, new) do
     scheduler_info_diff = SchedulerInfo.diff(base.scheduler_info, new.scheduler_info)
+    cpu_info_diff = CpuInfo.diff(base.cpu_info, new.cpu_info)
 
     %__MODULE__{
       scheduler_info: scheduler_info_diff,
       reductions: new.reductions - base.reductions,
-      context_switches: new.context_switches - base.context_switches
+      context_switches: new.context_switches - base.context_switches,
+      cpu_info: cpu_info_diff
     }
   end
 end
