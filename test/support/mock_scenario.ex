@@ -4,5 +4,5 @@ defmodule MockScenario do
   @behaviour Beamchmark.Scenario
 
   @impl true
-  def run(), do: :ok
+  def run(), do: :noop
 end
