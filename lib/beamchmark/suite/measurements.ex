@@ -21,7 +21,7 @@ defmodule Beamchmark.Suite.Measurements do
   ]
   defstruct @enforce_keys
 
-  @spec gather(timeout()) :: t()
+  @spec gather(pos_integer()) :: t()
   def gather(duration) do
     sample = :scheduler.sample_all()
 
