@@ -26,7 +26,7 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   """
   @type cpu_usage_t ::
           %{
-            cpu_usage: cpu_usage :: [cpu_core_usage_t()],
+            cpu_usage: cpu_usage :: cpu_core_usage_t(),
             average_all_cores: average_all_cores :: Math.percent_t()
           }
 
@@ -36,10 +36,17 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   """
   @type t :: %__MODULE__{
           cpu_snapshots: [cpu_usage_t()],
+          average_by_core:
+            average_by_core ::
+              %{
+                (core_id :: number()) => usage :: Math.percent_t()
+              }
+              | nil,
           average_all: Math.percent_t()
         }
 
   defstruct cpu_snapshots: [],
+            average_by_core: %{},
             average_all: 0
 
   @doc """
@@ -47,23 +54,18 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   """
   @spec convert_from_cpu_sup_util(any()) :: cpu_usage_t()
   def convert_from_cpu_sup_util(cpu_util_result) do
-    cpu_core_usage_list =
-      Enum.reduce(cpu_util_result, [], fn {core_id, usage, _idle, _mix}, acc ->
-        cpu_core_usage = %{
-          core_id: core_id,
-          usage: usage
-        }
-
-        [cpu_core_usage | acc]
+    cpu_core_usage_map =
+      Enum.reduce(cpu_util_result, %{}, fn {core_id, usage, _idle, _mix}, acc ->
+        Map.put(acc, core_id, usage)
       end)
 
     average_all_cores =
-      Enum.reduce(cpu_core_usage_list, 0, fn map, acc ->
-        acc + map.usage
-      end) / length(cpu_core_usage_list)
+      Enum.reduce(cpu_core_usage_map, 0, fn {_core_id, usage}, acc ->
+        acc + usage
+      end) / map_size(cpu_core_usage_map)
 
     %{
-      cpu_usage: cpu_core_usage_list,
+      cpu_usage: cpu_core_usage_map,
       average_all_cores: average_all_cores
     }
   end
@@ -79,17 +81,40 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
         acc + map.average_all_cores
       end) / length(cpu_usage_unstable_list)
 
+    sum_by_core =
+      Enum.reduce(cpu_usage_unstable_list, %{}, fn %{cpu_usage: cpu_usage}, sum_cores_acc ->
+        Enum.reduce(cpu_usage, sum_cores_acc, fn {key, value}, acc ->
+          Map.update(acc, key, value, fn el -> el + value end)
+        end)
+      end)
+
+    number_of_snapshots = length(cpu_usage_unstable_list)
+
+    average_by_core =
+      Enum.reduce(sum_by_core, %{}, fn {core_id, value}, acc ->
+        Map.put(acc, core_id, Float.round(value / number_of_snapshots, 2))
+      end)
+
     %__MODULE__{
       cpu_snapshots: cpu_usage_unstable_list,
+      average_by_core: average_by_core,
       average_all: average_all
     }
   end
 
   @spec diff(t(), t()) :: t()
   def diff(base, new) do
+    # TODO Calculate average by core difference
+
+    average_by_core_diff =
+      Enum.reduce(new.average_by_core, %{}, fn {core_id, value}, acc ->
+        Map.put(acc, core_id, value - Map.get(new.average_by_core, core_id))
+      end)
+
     %__MODULE__{
       cpu_snapshots: base.cpu_snapshots,
-      average_all: new.average_all - base.average_all
+      average_all: new.average_all - base.average_all,
+      average_by_core: average_by_core_diff
     }
   end
 end
