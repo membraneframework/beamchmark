@@ -5,6 +5,8 @@ defmodule Beamchmark.Formatters.Console do
 
   @behaviour Beamchmark.Formatter
 
+  @percision 2
+
   alias Beamchmark.{Suite, Math}
   alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
 
@@ -67,7 +69,10 @@ defmodule Beamchmark.Formatters.Console do
     #{format_numbers(measurements.context_switches)}
 
     #{entry_header("CPU Usage Average")}
-    #{measurements.cpu_info.average_all |> convert_float_to_percent(2)}%
+    #{measurements.cpu_info.average_all |> round_float}%
+
+    #{entry_header("CPU Usage Per Core")}
+    #{format_cpu_by_core(measurements.cpu_info.average_by_core)}
     """
   end
 
@@ -85,9 +90,32 @@ defmodule Beamchmark.Formatters.Console do
     measurements_diff.context_switches)}
 
     #{entry_header("CPU Usage Average")}
-    #{format_percent_diff(measurements.cpu_info.average_all,
+    #{format_cpu_average(measurements.cpu_info.average_all,
     measurements_diff.cpu_info.average_all)}
+
+
+    #{entry_header("CPU Usage Per Core")}
+    #{format_cpu_by_core(measurements.cpu_info.average_by_core,
+    measurements_diff.cpu_info.average_by_core)}
     """
+  end
+
+  defp round_float(float_value) when is_float(float_value) do
+    # TODO Probably there we need to better format numbers in the future
+    float_value
+    |> Float.round(@percision)
+  end
+
+  defp round_float(int_value) do
+    int_value
+  end
+
+  defp format_cpu_average(cpu_average_base, cpu_average_diff) do
+    cpu_new = cpu_average_base + cpu_average_diff
+    cpu_diff_percent = Math.percent_diff(cpu_average_base, cpu_new)
+    color = get_color(cpu_average_diff)
+
+    "#{round_float(cpu_new)}% #{color} #{round_float(cpu_average_diff)}% #{cpu_diff_percent}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp format_scheduler_info(%Measurements.SchedulerInfo{} = scheduler_info) do
@@ -142,8 +170,21 @@ defmodule Beamchmark.Formatters.Console do
     "#{util} #{percent}%"
   end
 
-  defp convert_float_to_percent(float, percision) do
-    float |> Float.round(percision)
+  defp format_cpu_by_core(cpu_by_core) do
+    Enum.map_join(cpu_by_core, "\n", fn {core_id, usage} ->
+      "Core: #{core_id} -> #{round_float(usage)} %"
+    end)
+  end
+
+  defp format_cpu_by_core(cpu_by_core_base, cpu_by_core_diff) do
+    Enum.map_join(cpu_by_core_base, "\n", fn {core_id, usage} ->
+      usage_diff = Map.get(cpu_by_core_diff, core_id)
+      usage_new = usage + usage_diff
+      usage_diff_percent = Math.percent_diff(usage, usage_new)
+      color = get_color(usage_diff)
+
+      "Core #{core_id} -> #{round_float(usage_new)}% #{color} #{round_float(usage_diff)} #{round_float(usage_diff_percent)} #{if usage_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+    end)
   end
 
   defp format_scheduler_entry(sched_usage, sched_usage_diff)
@@ -170,13 +211,6 @@ defmodule Beamchmark.Formatters.Console do
     percent_diff = Math.percent_diff(number - number_diff, number)
 
     "#{number} #{color} #{number_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
-  end
-
-  defp format_percent_diff(percent, percent_diff) do
-    color = get_color(percent_diff)
-    percent_diff = Math.percent_diff(percent - percent_diff, percent)
-
-    "#{percent}% #{color} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp section_header(text) do

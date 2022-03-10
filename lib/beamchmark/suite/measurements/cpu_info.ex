@@ -16,17 +16,14 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   alias Beamchmark.Math
 
   @typedoc """
-  Single core snap statistics gathered via snapshot
-  """
-  @type cpu_core_usage_t ::
-          %{(core_id :: integer()) => usage :: Math.percent_t() | Math.percent_diff_t()}
-
-  @typedoc """
   All information gathered via single snapshot + processor average
   """
   @type cpu_usage_t ::
           %{
-            cpu_usage: cpu_usage :: cpu_core_usage_t(),
+            cpu_usage:
+              cpu_usage :: %{
+                (core_id :: integer()) => usage :: Math.percent_t() | Math.percent_diff_t()
+              },
             average_all_cores: average_all_cores :: Math.percent_t()
           }
 
@@ -85,7 +82,7 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
 
     average_by_core_diff =
       Enum.reduce(new.average_by_core, %{}, fn {core_id, value}, acc ->
-        Map.put(acc, core_id, value - Map.get(new.average_by_core, core_id))
+        Map.put(acc, core_id, value - Map.get(base.average_by_core, core_id))
       end)
 
     %__MODULE__{
