@@ -5,10 +5,10 @@ defmodule Beamchmark.Formatters.Console do
 
   @behaviour Beamchmark.Formatter
 
-  @percision 2
-
   alias Beamchmark.{Suite, Math}
   alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
+
+  @percision 2
 
   @impl true
   def format(%Suite{} = suite, _options) do
