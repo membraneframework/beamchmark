@@ -77,10 +77,11 @@ defmodule Beamchmark.Suite do
 
   @spec save(t()) :: :ok
   def save(%__MODULE__{configuration: config} = suite) do
-    File.mkdir_p!(config.output_dir)
+    output_dir = output_dir_for(suite)
+    File.mkdir_p!(output_dir)
 
-    new_path = Path.join([config.output_dir, @suite_filename])
-    old_path = Path.join([config.output_dir, @old_suite_filename])
+    new_path = Path.join([output_dir, @suite_filename])
+    old_path = Path.join([output_dir, @old_suite_filename])
 
     if File.exists?(new_path) do
       File.rename!(new_path, old_path)
@@ -92,11 +93,20 @@ defmodule Beamchmark.Suite do
   end
 
   @spec try_load_base(t()) :: {:ok, t()} | {:error, File.posix()}
-  def try_load_base(%__MODULE__{configuration: config}) do
-    with old_path <- Path.join([config.output_dir, @old_suite_filename]),
+  def try_load_base(%__MODULE__{} = suite) do
+    output_dir = output_dir_for(suite)
+
+    with old_path <- Path.join([output_dir, @old_suite_filename]),
          {:ok, suite} <- File.read(old_path),
          suite <- :erlang.binary_to_term(suite) do
       {:ok, suite}
     end
+  end
+
+  defp output_dir_for(%__MODULE__{configuration: config} = suite) do
+    scenario_dir = suite.scenario |> Atom.to_string() |> String.replace(".", "")
+    config_dir = "#{config.delay}_#{config.duration}"
+
+    Path.join([config.output_dir, scenario_dir, config_dir])
   end
 end
