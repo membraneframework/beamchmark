@@ -5,15 +5,16 @@ defmodule Beamchmark.Suite.Measurements do
 
   alias __MODULE__.SchedulerInfo
   alias __MODULE__.CpuInfo
+  alias Beamchmark.Suite.CPU.CPUTask
 
   @type reductions_t() :: non_neg_integer()
   @type context_switches_t() :: non_neg_integer()
 
   @type t :: %__MODULE__{
           scheduler_info: SchedulerInfo.t(),
+          cpu_info: CpuInfo.t() | nil,
           reductions: reductions_t(),
-          context_switches: context_switches_t(),
-          cpu_info: CpuInfo.t() | nil
+          context_switches: context_switches_t()
         }
 
   @enforce_keys [
@@ -39,10 +40,16 @@ defmodule Beamchmark.Suite.Measurements do
     # second element of this tuple is always 0
     {context_switches, 0} = :erlang.statistics(:context_switches)
 
+    # Gather cpu load
+    cpu_task = CPUTask.start_link()
+
+    {:ok, cpu_info} = Task.await(cpu_task, :infinity)
+
     %__MODULE__{
       scheduler_info: scheduler_info,
       reductions: reductions,
-      context_switches: context_switches
+      context_switches: context_switches,
+      cpu_info: cpu_info
     }
   end
 

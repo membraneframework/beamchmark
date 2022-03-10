@@ -5,7 +5,6 @@ defmodule Beamchmark.Suite do
   """
 
   alias Beamchmark.Scenario
-  alias Beamchmark.Suite.CPU.CPUTask
 
   alias __MODULE__.{Configuration, SystemInfo, Measurements}
 
@@ -57,17 +56,6 @@ defmodule Beamchmark.Suite do
 
     Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
     measurements = Measurements.gather(config.duration)
-
-    # TODO There cpu_task is handled
-
-    cpu_task = CPUTask.start_link()
-
-    {:ok, cpu_info} = Task.await(cpu_task, :infinity)
-
-    measurements = %__MODULE__.Measurements{
-      measurements
-      | cpu_info: cpu_info
-    }
 
     case Task.await(task, :infinity) do
       :ok ->

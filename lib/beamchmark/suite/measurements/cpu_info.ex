@@ -50,27 +50,6 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
             average_all: 0
 
   @doc """
-  converts output of `:cpu_sup.util([:per_cpu])` to `cpu_usage_t`
-  """
-  @spec convert_from_cpu_sup_util(any()) :: cpu_usage_t()
-  def convert_from_cpu_sup_util(cpu_util_result) do
-    cpu_core_usage_map =
-      Enum.reduce(cpu_util_result, %{}, fn {core_id, usage, _idle, _mix}, acc ->
-        Map.put(acc, core_id, usage)
-      end)
-
-    average_all_cores =
-      Enum.reduce(cpu_core_usage_map, 0, fn {_core_id, usage}, acc ->
-        acc + usage
-      end) / map_size(cpu_core_usage_map)
-
-    %{
-      cpu_usage: cpu_core_usage_map,
-      average_all_cores: average_all_cores
-    }
-  end
-
-  @doc """
   Converts list of `cpu_usage_t` to ` #{__MODULE__}.t()`
   By calculating the average
   """
