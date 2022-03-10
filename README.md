@@ -39,8 +39,6 @@ Currently, Beamchmark supports two ways of printing its reports:
   This is the default formatter, it will print the report on standard output.
 
   ```txt
-  > mix run examples/advanced.exs
-
   ================
   SYSTEM INFO
   ================
