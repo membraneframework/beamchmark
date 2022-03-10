@@ -3,7 +3,7 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   Module representing statistics about cpu usage.
 
   Method of measuring:
-    - Take a snapshot of cpu usage every `@timeout` milliseconds
+    - Take a snapshot of cpu usage every `@interval` milliseconds
     - Calculate the average cpu usage of processor (combining each core usage)
     - At the end combine the results and calculate the average
 
@@ -62,9 +62,7 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
 
     sum_by_core =
       Enum.reduce(cpu_usage_unstable_list, %{}, fn %{cpu_usage: cpu_usage}, sum_cores_acc ->
-        Enum.reduce(cpu_usage, sum_cores_acc, fn {key, value}, acc ->
-          Map.update(acc, key, value, fn el -> el + value end)
-        end)
+        cpu_usage |> reduce_cpu_usage(sum_cores_acc)
       end)
 
     number_of_snapshots = length(cpu_usage_unstable_list)
@@ -95,5 +93,11 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
       average_all: new.average_all - base.average_all,
       average_by_core: average_by_core_diff
     }
+  end
+
+  defp reduce_cpu_usage(cpu_usage, sum_cores_acc) do
+    Enum.reduce(cpu_usage, sum_cores_acc, fn {key, value}, current_sum_cores ->
+      Map.update(current_sum_cores, key, value, fn el -> el + value end)
+    end)
   end
 end
