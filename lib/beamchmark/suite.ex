@@ -1,7 +1,11 @@
 defmodule Beamchmark.Suite do
   @moduledoc """
-  The module defines a struct representing a single run of benchmark.
-  It is responsible for benchmarking and saving/loading the results.
+  The module defines a struct representing a single run of benchmark. It is also responsible for running the
+  benchmark and saving/loading the results.
+
+  The results are serialized and stored in `output_dir / scenario name / delay_duration` directory, where
+  `scenario name` is the name of module implementing scenario (without separating dots) and `output_dir`,
+  `delay`, `duration` are fetched from the suite's configuration.
   """
 
   alias Beamchmark.Scenario
@@ -89,7 +93,7 @@ defmodule Beamchmark.Suite do
 
     File.write!(new_path, :erlang.term_to_binary(suite))
 
-    Mix.shell().info("Results successfully saved to #{inspect(config.output_dir)} directory.")
+    Mix.shell().info("The results were saved to \"#{inspect(config.output_dir)}`\" directory.")
   end
 
   @spec try_load_base(t()) :: {:ok, t()} | {:error, File.posix()}
