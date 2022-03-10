@@ -33,7 +33,11 @@ mix run examples/<example_name>.exs
 ```
 
 ## Formatters
-Currently, Beamchmark supports two ways of printing its reports:
+You can output benchmark results with Beamchmark's built-in formatters or implement a custom one.
+Formatters can also compare new results with the previous ones, given they share the same scenario module and 
+were configured to run for the same amount of time.
+
+Currently, you can output Beamchmark reports in the following ways:
 * `Beamchmark.Formatters.Console`
 
   This is the default formatter, it will print the report on standard output.
