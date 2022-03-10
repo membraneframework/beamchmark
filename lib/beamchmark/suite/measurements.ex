@@ -29,10 +29,15 @@ defmodule Beamchmark.Suite.Measurements do
     :cpu_info
   ]
 
-  @spec gather(timeout()) :: t()
+  @spec gather(pos_integer()) :: t()
   def gather(duration) do
+    sample = :scheduler.sample_all()
+
+    Process.sleep(:timer.seconds(duration))
+
     scheduler_info =
-      :scheduler.utilization(duration)
+      sample
+      |> :scheduler.utilization()
       |> SchedulerInfo.from_sched_util_result()
 
     {reductions, _reductions_from_last_call} = :erlang.statistics(:reductions)

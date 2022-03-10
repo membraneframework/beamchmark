@@ -1,10 +1,13 @@
 defmodule SimpleScenario do
+  @moduledoc false
+
   @behaviour Beamchmark.Scenario
 
   @impl true
   def run() do
-    Enum.map(1..1_000_000, fn i -> Integer.pow(i, 2) end)
-    :ok
+    1..1_000
+    |> Stream.cycle()
+    |> Stream.each(fn i -> Integer.pow(i, 2) end)
   end
 end
 
