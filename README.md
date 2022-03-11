@@ -20,7 +20,7 @@ The package can be installed by adding `beamchmark` to your list of dependencies
 ```elixir
 def deps do
   [
-    {:beamchmark, "~> 0.1.1"}
+    {:beamchmark, "~> 1.0"}
   ]
 end
 ```
