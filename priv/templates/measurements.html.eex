@@ -137,6 +137,7 @@
     barmode: "group",
     xaxis: {
       title: { text: "Scheduler ID" },
+      type: "category"
     },
     yaxis: {
       title: { text: "Mean time spent busy [s]" }
