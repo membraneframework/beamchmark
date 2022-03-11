@@ -52,11 +52,20 @@
       <% end %>
       domain: { row: 0, column: 1 },
       ...indicatorConfig
+    },
+    {
+      title: { text: "Average CPU Usage [%]" },
+      value: <%= new_measurements.cpu_info.average_all%>,
+      <%= if has_base do %>
+      delta: { reference: <%= base_measurements.cpu_info.average_all %>, ...deltaConfig },
+      <% end %>
+      domain: { row: 0, column: 2 },
+      ...indicatorConfig
     }
   ];
 
   let basicMetricsLayout = {
-    grid: { rows: 1, columns: 2, pattern: "independent" },
+    grid: { rows: 1, columns: 3, pattern: "independent" },
     height: 200,
     ...layoutConfig
   };

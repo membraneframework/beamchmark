@@ -78,8 +78,6 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
 
   @spec diff(t(), t()) :: t()
   def diff(base, new) do
-    # TODO Calculate average by core difference
-
     average_by_core_diff =
       Enum.reduce(new.average_by_core, %{}, fn {core_id, value}, acc ->
         Map.put(acc, core_id, value - Map.get(base.average_by_core, core_id))

@@ -110,12 +110,13 @@ defmodule Beamchmark.Formatters.Console do
     int_value
   end
 
-  defp format_cpu_average(cpu_average_base, cpu_average_diff) do
-    cpu_new = cpu_average_base + cpu_average_diff
-    cpu_diff_percent = Math.percent_diff(cpu_average_base, cpu_new)
+  defp format_cpu_average(cpu_average_new, cpu_average_diff) do
+    cpu_old = cpu_average_new - cpu_average_diff
+
+    cpu_diff_percent = Math.percent_diff(cpu_old, cpu_average_new)
     color = get_color(cpu_average_diff)
 
-    "#{round_float(cpu_new)}% #{color} #{round_float(cpu_average_diff)}% #{cpu_diff_percent}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+    "#{round_float(cpu_average_new)}% #{color} #{round_float(cpu_average_diff)}% #{cpu_diff_percent}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp format_scheduler_info(%Measurements.SchedulerInfo{} = scheduler_info) do
@@ -176,14 +177,14 @@ defmodule Beamchmark.Formatters.Console do
     end)
   end
 
-  defp format_cpu_by_core(cpu_by_core_base, cpu_by_core_diff) do
-    Enum.map_join(cpu_by_core_base, "\n", fn {core_id, usage} ->
+  defp format_cpu_by_core(cpucpu_by_core_new, cpu_by_core_diff) do
+    Enum.map_join(cpucpu_by_core_new, "\n", fn {core_id, usage} ->
       usage_diff = Map.get(cpu_by_core_diff, core_id)
-      usage_new = usage + usage_diff
-      usage_diff_percent = Math.percent_diff(usage, usage_new)
+      usage_old = usage - usage_diff
+      usage_diff_percent = Math.percent_diff(usage_old, usage)
       color = get_color(usage_diff)
 
-      "Core #{core_id} -> #{round_float(usage_new)}% #{color} #{round_float(usage_diff)} #{round_float(usage_diff_percent)} #{if usage_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+      "Core #{core_id} -> #{round_float(usage)}% #{color} #{round_float(usage_diff)} #{round_float(usage_diff_percent)} #{if usage_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
     end)
   end
 
