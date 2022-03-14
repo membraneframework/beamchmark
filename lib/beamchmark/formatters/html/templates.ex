@@ -5,6 +5,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
   alias Beamchmark.Scenario
   alias Beamchmark.Suite.Measurements.SchedulerInfo
+  alias Beamchmark.Suite.Measurements.CpuInfo
 
   EEx.function_from_file(:def, :index, "priv/templates/index.html.eex", [
     :new_suite,
@@ -47,6 +48,27 @@ defmodule Beamchmark.Formatters.HTML.Templates do
           "\"#{percent_usage}%\""
         end)
     }
+  end
+
+  defp format_float(float) do
+    float |> Float.round(2)
+  end
+
+  @spec formatted_average_cpu_usage([CpuInfo.cpu_usage_t()]) :: %{
+          (cpu_usage_entry :: atom()) => String.t()
+        }
+  def formatted_average_cpu_usage(cpu_snapshots_reversed) do
+    cpu_snapshots = Enum.reverse(cpu_snapshots_reversed)
+
+    to_ret = %{
+      average_cpu_usage:
+        Enum.map_join(cpu_snapshots, ", ", fn %{cpu_usage: _, average_all_cores: avg} ->
+          format_float(avg)
+        end),
+      time_stamps: Enum.map_join(1..length(cpu_snapshots), ", ", fn el -> el end)
+    }
+
+    to_ret
   end
 
   @spec was_busy?(SchedulerInfo.sched_usage_t()) :: boolean()

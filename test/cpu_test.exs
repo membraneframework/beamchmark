@@ -1,6 +1,7 @@
 defmodule CPUTaskTest do
   use ExUnit.Case
   alias Beamchmark.Suite.CPU.CPUTask
+  alias Beamchmark.Formatters.HTML.Templates
 
   setup do
     # Some tests setup
@@ -10,7 +11,14 @@ defmodule CPUTaskTest do
   end
 
   test "cpu_task" do
-    cpu_task = CPUTask.start_link(1000, 10)
+    cpu_task = CPUTask.start_link(10, 1000)
     assert {:ok, _statistics} = Task.await(cpu_task, :infinity)
+  end
+
+  test "formatted_average_cpu_usage" do
+    cpu_task = CPUTask.start_link(10, 1000)
+    assert {:ok, statistics} = Task.await(cpu_task, :infinity)
+    result = Templates.formatted_average_cpu_usage(statistics.cpu_snapshots)
+    assert true == not is_nil(result)
   end
 end

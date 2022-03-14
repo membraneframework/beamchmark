@@ -9,6 +9,7 @@
 <div id="normalScheduler"></div>
 <div id="cpuScheduler"></div>
 <div id="ioScheduler"></div>
+<div id="average_cpu_usage"></div>
 <script>
   <% has_base = not is_nil(base_measurements) %>
   let indicatorConfig =  {
@@ -203,4 +204,63 @@
       plotlyConfig
     );
   <% end %>
+
+
+    <%
+      div_id = "average_cpu_usage"
+      formatted_new = formatted_average_cpu_usage(new_measurements.cpu_info.cpu_snapshots)
+    %>
+    let <%= div_id %> = [
+      <%= if has_base do %>
+      <% formatted_base = formatted_average_cpu_usage(base_measurements.cpu_info.cpu_snapshots) %>
+      {
+        name: "base",
+          mode: 'lines+markers',
+          marker: {
+            color: "#451F55",
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= formatted_base.average_cpu_usage %>],
+        x: [<%= formatted_base.time_stamps %>],
+      },
+      <% end %>
+      {
+        name: "new",
+          mode: 'lines+markers',
+          marker: {
+            color: "#E54F6D",
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= formatted_new.average_cpu_usage %>],
+        x: [<%= formatted_new.time_stamps %>],
+      }
+    ];
+
+    Plotly.newPlot(
+      "<%= div_id %>",
+      <%= div_id %>,
+      {
+        title: "Average CPU Usage",
+        xaxis: {
+          title: { text: "Time" },
+          type: "category"
+          },
+        yaxis: {
+          title: { text: "CPU Usage (all cores) [%]"}
+          }
+      },
+      plotlyConfig
+    );
+
+
 </script>
