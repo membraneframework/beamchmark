@@ -47,7 +47,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
       html_assets_linked = HTML.format(suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, inline_assets?: true)
 
-      expected_size_linked = 12_000
+      expected_size_linked = 15_000
       expected_size_inlined = 3_670_000
 
       assert_in_delta byte_size(html_assets_linked),
@@ -63,7 +63,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
       html_assets_linked = HTML.format(suite, suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, suite, inline_assets?: true)
 
-      expected_size_linked = 16_000
+      expected_size_linked = 20_000
       expected_size_inlined = 3_670_000
 
       assert_in_delta byte_size(html_assets_linked),

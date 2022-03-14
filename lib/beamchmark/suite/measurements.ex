@@ -46,6 +46,9 @@ defmodule Beamchmark.Suite.Measurements do
     {context_switches, 0} = :erlang.statistics(:context_switches)
 
     # Gather cpu load
+    # TODO There we don't measure for all time, but wait untill
+    # :scheduler.utilization() measures,
+    # is it a best way to do this?
     cpu_task = CPUTask.start_link()
 
     {:ok, cpu_info} = Task.await(cpu_task, :infinity)

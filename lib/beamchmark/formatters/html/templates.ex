@@ -69,14 +69,13 @@ defmodule Beamchmark.Formatters.HTML.Templates do
     }
   end
 
-  @spec formatted_average_cpu_usage([CpuInfo.cpu_usage_t()]) :: %{
-          (core_id :: number()) => %{
-            values: number(),
-            time: number()
-          }
+  @spec formatted_cpu_usage_by_core([CpuInfo.cpu_usage_t()]) :: %{
+          result: [String.t()],
+          time_stamps: String.t(),
+          cores_number: number()
         }
   def formatted_cpu_usage_by_core(cpu_snapshots_reversed) do
-    # TODO This can by moved
+    # TODO This can by renamed
     cpu_snapshots = cpu_snapshots_reversed
 
     result_by_core_timestamp =
@@ -96,12 +95,12 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
     reversed_result =
       Enum.reduce(result_by_core_timestamp, [], fn {_core_id, usage_timestamps}, acc ->
-        result =
+        [
           Enum.map_join(usage_timestamps, ", ", fn value ->
             format_float(value)
           end)
-
-        [result | acc]
+          | acc
+        ]
       end)
 
     %{
