@@ -37,6 +37,7 @@ defmodule Beamchmark do
   """
 
   @default_duration 60
+  @default_interval_ms 100
   @default_delay 0
   @default_formatter Beamchmark.Formatters.Console
   @default_output_dir Path.join([System.tmp_dir!(), "beamchmark"])
@@ -68,6 +69,7 @@ defmodule Beamchmark do
   def run(scenario, opts \\ []) do
     config = %Beamchmark.Suite.Configuration{
       duration: Keyword.get(opts, :duration, @default_duration),
+      interval: Keyword.get(opts, :interval, @default_interval_ms),
       delay: Keyword.get(opts, :delay, @default_delay),
       formatters: Keyword.get(opts, :formatters, [@default_formatter]),
       compare?: Keyword.get(opts, :compare?, @default_compare),

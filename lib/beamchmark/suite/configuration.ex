@@ -8,6 +8,7 @@ defmodule Beamchmark.Suite.Configuration do
 
   @type t :: %__MODULE__{
           duration: pos_integer(),
+          interval: pos_integer() | nil,
           delay: non_neg_integer(),
           formatters: [Formatter.t()],
           output_dir: Path.t(),
@@ -15,5 +16,5 @@ defmodule Beamchmark.Suite.Configuration do
         }
 
   @enforce_keys [:duration, :delay, :formatters, :compare?, :output_dir]
-  defstruct @enforce_keys
+  defstruct [:duration, :interval, :delay, :formatters, :compare?, :output_dir]
 end

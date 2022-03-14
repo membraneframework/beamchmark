@@ -10,17 +10,27 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
   use Task
 
   alias Beamchmark.Suite.Measurements.CpuInfo
-  # interval in milliseconds
-  @interval 1000
-  # Duration in milliseconds
-  @duration 10_000
 
-  @spec start_link(number, number) :: Task.t()
-  def start_link(interval \\ @interval, duration \\ @duration) do
-    Task.async(fn -> run_poll(interval, duration) end)
+  @fallback_interval 1000
+  @fallback_duration 5000
+
+  @type options_t :: [interval: number(), duration: number()]
+
+  @spec start_link(options_t()) :: Task.t()
+  def start_link(options) do
+    Task.async(fn ->
+      # Filter nil values
+      options = Enum.filter(options, fn {_key, value} -> !is_nil(value) end)
+
+      # Define some fallbacks (most for secure usage & tests)
+      run_poll(
+        Keyword.get(options, :interval, @fallback_interval),
+        Keyword.get(options, :duration, @fallback_duration)
+      )
+    end)
   end
 
-  @spec run_poll(number, number) :: {:ok, CpuInfo.t()} | {:err, String.t()}
+  @spec run_poll(number(), number()) :: {:ok, CpuInfo.t()} | {:err, String.t()}
   defp run_poll(interval, duration) do
     iterations_number = trunc(duration / interval)
     :cpu_sup.start()

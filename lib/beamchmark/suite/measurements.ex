@@ -29,11 +29,17 @@ defmodule Beamchmark.Suite.Measurements do
     :cpu_info
   ]
 
-  @spec gather(pos_integer()) :: t()
-  def gather(duration) do
+  @spec gather(pos_integer(), pos_integer()) :: t()
+  def gather(duration, interval) do
     sample = :scheduler.sample_all()
 
     Process.sleep(:timer.seconds(duration))
+
+    # Gather cpu load
+    # TODO We can disturb the measurment of
+    # :scheduler.utilization(),
+    # is it a best way to do this?
+    cpu_task = CPUTask.start_link(duration: duration * 1000, interval: interval)
 
     scheduler_info =
       sample
@@ -44,12 +50,6 @@ defmodule Beamchmark.Suite.Measurements do
 
     # second element of this tuple is always 0
     {context_switches, 0} = :erlang.statistics(:context_switches)
-
-    # Gather cpu load
-    # TODO There we don't measure for all time, but wait untill
-    # :scheduler.utilization() measures,
-    # is it a best way to do this?
-    cpu_task = CPUTask.start_link()
 
     {:ok, cpu_info} = Task.await(cpu_task, :infinity)
 

@@ -87,14 +87,24 @@ defmodule Beamchmark.Formatters.HTMLTest do
     end
 
     test "formatted_average_cpu_usage" do
-      cpu_task = CPUTask.start_link(10, 1000)
+      cpu_task =
+        CPUTask.start_link(
+          interval: 10,
+          duration: 1000
+        )
+
       assert {:ok, statistics} = Task.await(cpu_task, :infinity)
       result = Templates.formatted_average_cpu_usage(statistics.cpu_snapshots)
       assert true == not is_nil(result)
     end
 
     test "formatted_cpu_usage_by_core" do
-      cpu_task = CPUTask.start_link(1000, 10_000)
+      cpu_task =
+        CPUTask.start_link(
+          interval: 1000,
+          duration: 10_000
+        )
+
       assert {:ok, statistics} = Task.await(cpu_task, :infinity)
       result = Templates.formatted_cpu_usage_by_core(statistics.cpu_snapshots)
       assert true == not is_nil(result)

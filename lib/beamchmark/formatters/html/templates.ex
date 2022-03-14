@@ -65,7 +65,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
         Enum.map_join(cpu_snapshots, ", ", fn %{cpu_usage: _, average_all_cores: avg} ->
           format_float(avg)
         end),
-      time_stamps: Enum.map_join(1..length(cpu_snapshots), ", ", fn el -> el end)
+      time_stamps: Enum.map_join(1..(length(cpu_snapshots) - 1), ", ", fn el -> el end)
     }
   end
 

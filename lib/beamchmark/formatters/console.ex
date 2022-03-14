@@ -69,7 +69,7 @@ defmodule Beamchmark.Formatters.Console do
     #{format_numbers(measurements.context_switches)}
 
     #{entry_header("CPU Usage Average")}
-    #{measurements.cpu_info.average_all |> round_float}%
+    #{measurements.cpu_info.average_all |> format_numbers}%
 
     #{entry_header("CPU Usage Per Core")}
     #{format_cpu_by_core(measurements.cpu_info.average_by_core)}
@@ -100,23 +100,13 @@ defmodule Beamchmark.Formatters.Console do
     """
   end
 
-  defp round_float(float_value) when is_float(float_value) do
-    # TODO Probably there we need to better format numbers in the future
-    float_value
-    |> Float.round(@percision)
-  end
-
-  defp round_float(int_value) do
-    int_value
-  end
-
   defp format_cpu_average(cpu_average_new, cpu_average_diff) do
     cpu_old = cpu_average_new - cpu_average_diff
 
     cpu_diff_percent = Math.percent_diff(cpu_old, cpu_average_new)
     color = get_color(cpu_average_diff)
 
-    "#{round_float(cpu_average_new)}% #{color} #{round_float(cpu_average_diff)}% #{cpu_diff_percent}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+    "#{format_numbers(cpu_average_new)}% #{color} #{format_numbers(cpu_average_diff)}% #{format_numbers(cpu_diff_percent)}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp format_scheduler_info(%Measurements.SchedulerInfo{} = scheduler_info) do
@@ -173,7 +163,7 @@ defmodule Beamchmark.Formatters.Console do
 
   defp format_cpu_by_core(cpu_by_core) do
     Enum.map_join(cpu_by_core, "\n", fn {core_id, usage} ->
-      "Core: #{core_id} -> #{round_float(usage)} %"
+      "Core: #{core_id} -> #{format_numbers(usage)} %"
     end)
   end
 
@@ -184,7 +174,7 @@ defmodule Beamchmark.Formatters.Console do
       usage_diff_percent = Math.percent_diff(usage_old, usage)
       color = get_color(usage_diff)
 
-      "Core #{core_id} -> #{round_float(usage)}% #{color} #{round_float(usage_diff)} #{round_float(usage_diff_percent)} #{if usage_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+      "Core #{core_id} -> #{format_numbers(usage)}% #{color} #{format_numbers(usage_diff)} #{format_numbers(usage_diff_percent)} #{if usage_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
     end)
   end
 
@@ -205,6 +195,11 @@ defmodule Beamchmark.Formatters.Console do
   end
 
   defp format_numbers(number) when is_integer(number), do: "#{number}"
+
+  defp format_numbers(float_value) when is_float(float_value) do
+    float_value
+    |> Float.round(@percision)
+  end
 
   defp format_numbers(number, number_diff) when is_integer(number) and is_integer(number_diff) do
     color = get_color(number_diff)

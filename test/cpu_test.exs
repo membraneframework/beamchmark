@@ -3,7 +3,12 @@ defmodule CPUTaskTest do
   alias Beamchmark.Suite.CPU.CPUTask
 
   test "cpu_task" do
-    cpu_task = CPUTask.start_link(10, 1000)
+    cpu_task =
+      CPUTask.start_link(
+        interval: 10,
+        duration: 1000
+      )
+
     assert {:ok, _statistics} = Task.await(cpu_task, :infinity)
   end
 end
