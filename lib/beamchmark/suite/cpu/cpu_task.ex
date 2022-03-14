@@ -25,10 +25,7 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
     iterations_number = trunc(duration / interval)
     :cpu_sup.start()
     # First run returns garbage acc to docs
-    # TODO Remove this and find some way to eliminate 100% at the begining of measurements
-    for _v <- 1..10 do
-      :cpu_sup.util([:per_cpu]) |> to_cpu_snapshot()
-    end
+    :cpu_sup.util([:per_cpu])
 
     cpu_snapshots =
       Enum.reduce(0..iterations_number, [], fn _x, cpu_snapshots ->

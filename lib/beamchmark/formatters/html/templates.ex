@@ -75,22 +75,10 @@ defmodule Beamchmark.Formatters.HTML.Templates do
           cores_number: number()
         }
   def formatted_cpu_usage_by_core(cpu_snapshots_reversed) do
-    # TODO This can by renamed
-    cpu_snapshots = cpu_snapshots_reversed
-
     result_by_core_timestamp =
-      Enum.reduce(cpu_snapshots, %{}, fn %{cpu_usage: cpu_usage, average_all_cores: _avg},
-                                         cpu_usage_acc ->
-        Enum.reduce(cpu_usage, cpu_usage_acc, fn {key, value}, cpu_usage_current ->
-          Map.update(
-            cpu_usage_current,
-            key,
-            [],
-            fn el ->
-              [value | el]
-            end
-          )
-        end)
+      Enum.reduce(cpu_snapshots_reversed, %{}, fn %{cpu_usage: cpu_usage, average_all_cores: _avg},
+                                                  cpu_usage_acc ->
+        reduce_cpu_usage(cpu_usage, cpu_usage_acc)
       end)
 
     reversed_result =
@@ -105,9 +93,22 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
     %{
       result: Enum.reverse(reversed_result),
-      time_stamps: Enum.map_join(1..length(cpu_snapshots), ", ", fn el -> el end),
+      time_stamps: Enum.map_join(1..length(cpu_snapshots_reversed), ", ", fn el -> el end),
       cores_number: length(reversed_result)
     }
+  end
+
+  defp reduce_cpu_usage(cpu_usage, cpu_usage_acc) do
+    Enum.reduce(cpu_usage, cpu_usage_acc, fn {key, value}, cpu_usage_current ->
+      Map.update(
+        cpu_usage_current,
+        key,
+        [],
+        fn el ->
+          [value | el]
+        end
+      )
+    end)
   end
 
   @spec was_busy?(SchedulerInfo.sched_usage_t()) :: boolean()
