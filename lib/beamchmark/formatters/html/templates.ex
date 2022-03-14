@@ -60,15 +60,55 @@ defmodule Beamchmark.Formatters.HTML.Templates do
   def formatted_average_cpu_usage(cpu_snapshots_reversed) do
     cpu_snapshots = Enum.reverse(cpu_snapshots_reversed)
 
-    to_ret = %{
+    %{
       average_cpu_usage:
         Enum.map_join(cpu_snapshots, ", ", fn %{cpu_usage: _, average_all_cores: avg} ->
           format_float(avg)
         end),
       time_stamps: Enum.map_join(1..length(cpu_snapshots), ", ", fn el -> el end)
     }
+  end
 
-    to_ret
+  @spec formatted_average_cpu_usage([CpuInfo.cpu_usage_t()]) :: %{
+          (core_id :: number()) => %{
+            values: number(),
+            time: number()
+          }
+        }
+  def formatted_cpu_usage_by_core(cpu_snapshots_reversed) do
+    # TODO This can by moved
+    cpu_snapshots = cpu_snapshots_reversed
+
+    result_by_core_timestamp =
+      Enum.reduce(cpu_snapshots, %{}, fn %{cpu_usage: cpu_usage, average_all_cores: _avg},
+                                         cpu_usage_acc ->
+        Enum.reduce(cpu_usage, cpu_usage_acc, fn {key, value}, cpu_usage_current ->
+          Map.update(
+            cpu_usage_current,
+            key,
+            [],
+            fn el ->
+              [value | el]
+            end
+          )
+        end)
+      end)
+
+    reversed_result =
+      Enum.reduce(result_by_core_timestamp, [], fn {_core_id, usage_timestamps}, acc ->
+        result =
+          Enum.map_join(usage_timestamps, ", ", fn value ->
+            format_float(value)
+          end)
+
+        [result | acc]
+      end)
+
+    %{
+      result: Enum.reverse(reversed_result),
+      time_stamps: Enum.map_join(1..length(cpu_snapshots), ", ", fn el -> el end),
+      cores_number: length(reversed_result)
+    }
   end
 
   @spec was_busy?(SchedulerInfo.sched_usage_t()) :: boolean()

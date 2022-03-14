@@ -10,6 +10,7 @@
 <div id="cpuScheduler"></div>
 <div id="ioScheduler"></div>
 <div id="average_cpu_usage"></div>
+<div id="by_core_cpu_usage"></div>
 <script>
   <% has_base = not is_nil(base_measurements) %>
   let indicatorConfig =  {
@@ -257,6 +258,47 @@
           },
         yaxis: {
           title: { text: "CPU Usage (all cores) [%]"}
+          }
+      },
+      plotlyConfig
+    );
+
+
+    <%
+      div_id = "by_core_cpu_usage"
+      formatted_new = formatted_cpu_usage_by_core(new_measurements.cpu_info.cpu_snapshots)
+    %>
+    let <%= div_id %> = [
+  <%= for core_id <- 0..formatted_new.cores_number-1
+  do %>
+      {
+        name: "<%="core_" <> to_string(core_id) %>",
+          mode: 'lines+markers',
+          marker: {
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= Enum.at(formatted_new.result,core_id)  %>],
+        x: [<%= formatted_new.time_stamps %>],
+      },
+    <% end %>
+    ];
+
+    Plotly.newPlot(
+      "<%= div_id %>",
+      <%= div_id %>,
+      {
+        title: "CPU Usage by core",
+        xaxis: {
+          title: { text: "Time" },
+          type: "category"
+          },
+        yaxis: {
+          title: { text: "CPU Usage by core [%]"}
           }
       },
       plotlyConfig

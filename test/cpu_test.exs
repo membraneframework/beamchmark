@@ -21,4 +21,11 @@ defmodule CPUTaskTest do
     result = Templates.formatted_average_cpu_usage(statistics.cpu_snapshots)
     assert true == not is_nil(result)
   end
+
+  test "formatted_cpu_usage_by_core" do
+    cpu_task = CPUTask.start_link(1000, 10_000)
+    assert {:ok, statistics} = Task.await(cpu_task, :infinity)
+    result = Templates.formatted_cpu_usage_by_core(statistics.cpu_snapshots)
+    assert true == not is_nil(result)
+  end
 end
