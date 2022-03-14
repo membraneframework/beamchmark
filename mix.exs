@@ -1,7 +1,7 @@
 defmodule Beamchmark.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "1.0.0"
   @github_url "https://github.com/membraneframework/beamchmark"
 
   def project do
@@ -39,14 +39,14 @@ defmodule Beamchmark.MixProject do
       {:bunch, "~> 1.3.0"},
       {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
       {:credo, "~> 1.6.1", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.26.0", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.27.0", only: :dev, runtime: false}
     ]
   end
 
   defp package do
     [
       maintainers: ["Membrane Team"],
-      licenses: ["Apache 2.0"],
+      licenses: ["Apache-2.0"],
       links: %{
         "GitHub" => @github_url,
         "Membrane Framework Homepage" => "https://membraneframework.org"
