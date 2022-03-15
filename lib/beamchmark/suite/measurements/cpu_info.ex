@@ -52,6 +52,10 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   """
   @spec combine_cpu_statistics([cpu_usage_t()]) :: t()
   def combine_cpu_statistics(cpu_usage_unstable_list) do
+    # remove last element of the list (because it is constant and 100%)
+    # and last element is actually the first measurement
+    # cpu_usage_unstable_list = cpu_usage_unstable_list |> Enum.reverse() |> tl() |> Enum.reverse()
+
     average_all =
       Enum.reduce(cpu_usage_unstable_list, 0, fn map, acc ->
         acc + map.average_all_cores

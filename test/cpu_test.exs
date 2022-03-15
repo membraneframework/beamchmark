@@ -5,7 +5,7 @@ defmodule CPUTaskTest do
   test "cpu_task" do
     cpu_task =
       CPUTask.start_link(
-        interval: 10,
+        interval: 100,
         duration: 1000
       )
 

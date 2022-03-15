@@ -1,7 +1,11 @@
 defmodule Beamchmark.Suite.CPU.CPUTask do
   @moduledoc """
   This module contains the CPU benchmarking task.
-
+  Measurements are performed using [`:cpu_sup.util/1`](https://www.erlang.org/doc/man/cpu_sup.html)
+  Currently (according to docs), as busy processor states we identify:
+    - user
+    - nice_user (low priority use mode)
+    - kernel
   Run example:
   ```
   CPUTask.start_link()
@@ -10,6 +14,8 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
   use Task
 
   alias Beamchmark.Suite.Measurements.CpuInfo
+
+  @interfere_timeout 100
 
   @type options_t :: [interval: number(), duration: number()]
 
@@ -29,6 +35,13 @@ defmodule Beamchmark.Suite.CPU.CPUTask do
     :cpu_sup.start()
     # First run returns garbage acc to docs
     :cpu_sup.util([:per_cpu])
+    # And the fact of measurement is polluting the results,
+    # So we need to wait for @interfere_timeout
+    Process.sleep(@interfere_timeout)
+
+    if interval < @interfere_timeout do
+      raise "interval (#{interval}) can't be less than #{@interfere_timeout}"
+    end
 
     cpu_snapshots =
       Enum.reduce(0..iterations_number, [], fn _x, cpu_snapshots ->
