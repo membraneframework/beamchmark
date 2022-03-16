@@ -1,14 +1,22 @@
-defmodule CPUTaskTest do
+defmodule CpuTaskTest do
   use ExUnit.Case
-  alias Beamchmark.Suite.CPU.CPUTask
+  alias Beamchmark.Suite.CPU.CpuTask
 
-  test "cpu_task" do
+  test "CpuTask.start_link/2 runs properly" do
+    cpu_interval = 100
+    duration = 15_000
+
     cpu_task =
-      CPUTask.start_link(
-        interval: 100,
-        duration: 1000
+      CpuTask.start_link(
+        cpu_interval,
+        duration
       )
 
-    assert {:ok, _statistics} = Task.await(cpu_task, :infinity)
+    assert {:ok, cpu_info} = Task.await(cpu_task, :infinity)
+    assert !is_nil(cpu_info.average_by_core)
+    assert !is_nil(cpu_info.cpu_snapshots)
+    assert !is_nil(cpu_info.average_all)
+
+    assert duration / cpu_interval == length(cpu_info.cpu_snapshots)
   end
 end

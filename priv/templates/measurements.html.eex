@@ -208,11 +208,11 @@
 
     <%
      div_id = "average_cpu_usage"
-     formatted_new = formatted_average_cpu_usage(new_measurements.cpu_info.cpu_snapshots)
+     formatted_new = format_average_cpu_usage(new_measurements.cpu_info.cpu_snapshots)
      %>
     let <%= div_id %> = [
       <%= if has_base do %>
-      <% formatted_base = formatted_average_cpu_usage(base_measurements.cpu_info.cpu_snapshots) %>
+      <% formatted_base = format_average_cpu_usage(base_measurements.cpu_info.cpu_snapshots) %>
       {
         name: "base",
           mode: 'lines+markers',
@@ -226,7 +226,7 @@
           },
         type: 'scatter',
         y: [<%= formatted_base.average_cpu_usage %>],
-        x: [<%= formatted_base.time_stamps %>],
+        x: [<%= formatted_base.time %>],
       },
       <% end %>
       {
@@ -242,7 +242,7 @@
           },
         type: 'scatter',
         y: [<%= formatted_new.average_cpu_usage %>],
-        x: [<%= formatted_new.time_stamps %>],
+        x: [<%= formatted_new.time %>],
       }
     ];
 
@@ -263,7 +263,7 @@
 
     <%
      div_id = "by_core_cpu_usage"
-     formatted_new = formatted_cpu_usage_by_core(new_measurements.cpu_info.cpu_snapshots)
+     formatted_new = format_cpu_usage_by_core(new_measurements.cpu_info.cpu_snapshots)
      %>
     let <%= div_id %> = [
   <%= for core_id <- 0..formatted_new.cores_number-1
@@ -280,7 +280,7 @@
           },
         type: 'scatter',
         y: [<%= Enum.at(formatted_new.result,core_id)%>],
-        x: [<%= formatted_new.time_stamps %>],
+        x: [<%= formatted_new.time %>],
       },
     <% end %>
     ];

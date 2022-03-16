@@ -8,7 +8,7 @@ defmodule Beamchmark.Formatters.Console do
   alias Beamchmark.{Suite, Math}
   alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
 
-  @percision 2
+  @precision 2
 
   @impl true
   def format(%Suite{} = suite, _options) do
@@ -69,7 +69,7 @@ defmodule Beamchmark.Formatters.Console do
     #{format_numbers(measurements.context_switches)}
 
     #{entry_header("CPU Usage Average")}
-    #{measurements.cpu_info.average_all |> format_numbers}%
+    #{format_numbers(measurements.cpu_info.average_all)}%
 
     #{entry_header("CPU Usage Per Core")}
     #{format_cpu_by_core(measurements.cpu_info.average_by_core)}
@@ -100,13 +100,13 @@ defmodule Beamchmark.Formatters.Console do
     """
   end
 
-  defp format_cpu_average(cpu_average_new, cpu_average_diff) do
-    cpu_old = cpu_average_new - cpu_average_diff
+  defp format_cpu_average(cpu_average, cpu_average_diff) do
+    cpu_old = cpu_average - cpu_average_diff
 
-    cpu_diff_percent = Math.percent_diff(cpu_old, cpu_average_new)
+    cpu_diff_percent = Math.percent_diff(cpu_old, cpu_average)
     color = get_color(cpu_average_diff)
 
-    "#{format_numbers(cpu_average_new)}% #{color} #{format_numbers(cpu_average_diff)}% #{format_numbers(cpu_diff_percent)}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+    "#{format_numbers(cpu_average)}% #{color} #{format_numbers(cpu_average_diff)}% #{format_numbers(cpu_diff_percent)}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp format_scheduler_info(%Measurements.SchedulerInfo{} = scheduler_info) do
@@ -167,8 +167,8 @@ defmodule Beamchmark.Formatters.Console do
     end)
   end
 
-  defp format_cpu_by_core(cpucpu_by_core_new, cpu_by_core_diff) do
-    Enum.map_join(cpucpu_by_core_new, "\n", fn {core_id, usage} ->
+  defp format_cpu_by_core(cpu_by_core, cpu_by_core_diff) do
+    Enum.map_join(cpu_by_core, "\n", fn {core_id, usage} ->
       usage_diff = Map.get(cpu_by_core_diff, core_id)
       usage_old = usage - usage_diff
       usage_diff_percent = Math.percent_diff(usage_old, usage)
@@ -197,8 +197,7 @@ defmodule Beamchmark.Formatters.Console do
   defp format_numbers(number) when is_integer(number), do: "#{number}"
 
   defp format_numbers(float_value) when is_float(float_value) do
-    float_value
-    |> Float.round(@percision)
+    Float.round(float_value, @precision)
   end
 
   defp format_numbers(number, number_diff) when is_integer(number) and is_integer(number_diff) do

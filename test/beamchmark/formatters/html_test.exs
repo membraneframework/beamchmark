@@ -2,7 +2,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
   use ExUnit.Case, async: true
 
   alias Beamchmark.Formatters.HTML
-  alias Beamchmark.Suite.CPU.CPUTask
+  alias Beamchmark.Suite.CPU.CpuTask
   alias Beamchmark.Formatters.HTML.Templates
 
   @temp_directory TestUtils.temporary_dir(__MODULE__)
@@ -65,7 +65,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
       html_assets_linked = HTML.format(suite, suite, inline_assets?: false)
       html_assets_inlined = HTML.format(suite, suite, inline_assets?: true)
 
-      expected_size_linked = 25_000
+      expected_size_linked = 20_000
       expected_size_inlined = 3_670_000
 
       assert_in_delta byte_size(html_assets_linked),
@@ -86,27 +86,27 @@ defmodule Beamchmark.Formatters.HTMLTest do
       assert File.read!(options[:output_path]) == mock_html
     end
 
-    test "formatted_average_cpu_usage" do
+    test "format_average_cpu_usage/1 runs and doesn't return nil" do
       cpu_task =
-        CPUTask.start_link(
-          interval: 100,
-          duration: 1000
+        CpuTask.start_link(
+          100,
+          1000
         )
 
       assert {:ok, statistics} = Task.await(cpu_task, :infinity)
-      result = Templates.formatted_average_cpu_usage(statistics.cpu_snapshots)
+      result = Templates.format_average_cpu_usage(statistics.cpu_snapshots)
       assert true == not is_nil(result)
     end
 
-    test "formatted_cpu_usage_by_core" do
+    test "format_cpu_usage_by_core/1 runs and doesn't return nil" do
       cpu_task =
-        CPUTask.start_link(
-          interval: 1000,
-          duration: 10_000
+        CpuTask.start_link(
+          1000,
+          10_000
         )
 
       assert {:ok, statistics} = Task.await(cpu_task, :infinity)
-      result = Templates.formatted_cpu_usage_by_core(statistics.cpu_snapshots)
+      result = Templates.format_cpu_usage_by_core(statistics.cpu_snapshots)
       assert true == not is_nil(result)
     end
   end

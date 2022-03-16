@@ -5,14 +5,14 @@ defmodule Beamchmark.Suite.Measurements do
 
   alias __MODULE__.SchedulerInfo
   alias __MODULE__.CpuInfo
-  alias Beamchmark.Suite.CPU.CPUTask
+  alias Beamchmark.Suite.CPU.CpuTask
 
   @type reductions_t() :: non_neg_integer()
   @type context_switches_t() :: non_neg_integer()
 
   @type t :: %__MODULE__{
           scheduler_info: SchedulerInfo.t(),
-          cpu_info: CpuInfo.t() | nil,
+          cpu_info: CpuInfo.t(),
           reductions: reductions_t(),
           context_switches: context_switches_t()
         }
@@ -30,16 +30,12 @@ defmodule Beamchmark.Suite.Measurements do
   ]
 
   @spec gather(pos_integer(), pos_integer()) :: t()
-  def gather(duration, interval) do
+  def gather(duration, cpu_interval) do
     sample = :scheduler.sample_all()
 
     Process.sleep(:timer.seconds(duration))
 
-    # Gather cpu load
-    # TODO We can disturb the measurment of
-    # :scheduler.utilization(),
-    # is it a best way to do this?
-    cpu_task = CPUTask.start_link(duration: duration * 1000, interval: interval)
+    cpu_task = CpuTask.start_link(cpu_interval, duration * 1000)
 
     scheduler_info =
       sample
