@@ -33,9 +33,9 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   @type t :: %__MODULE__{
           cpu_snapshots: [cpu_snapshot_t()] | nil,
           average_by_core: %{
-            (core_id :: number()) => usage :: Math.percent_t()
+            (core_id :: number()) => usage :: Math.percent_t() | float()
           },
-          average_all: Math.percent_t()
+          average_all: Math.percent_t() | float()
         }
 
   defstruct cpu_snapshots: [],
