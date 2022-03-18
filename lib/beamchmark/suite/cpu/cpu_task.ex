@@ -30,7 +30,7 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     end)
   end
 
-  @spec run_poll(number(), number()) :: {:ok, CpuInfo.t()} | {:err, String.t()}
+  @spec run_poll(number(), number()) :: {:ok, CpuInfo.t()}
   defp run_poll(cpu_interval, duration) do
     iterations_number = trunc(duration / cpu_interval)
     :cpu_sup.start()

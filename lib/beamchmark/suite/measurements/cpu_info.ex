@@ -21,7 +21,7 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   @type cpu_snapshot_t ::
           %{
             cpu_usage: %{
-              (core_id :: integer()) => usage :: Math.percent_t() | Math.percent_diff_t()
+              (core_id :: integer()) => usage :: Math.percent_t()
             },
             average_all_cores: average_all_cores :: Math.percent_t()
           }
