@@ -45,6 +45,7 @@ defmodule Beamchmark do
 
   @typedoc """
   Configuration for `#{inspect(__MODULE__)}`.
+  * `name` - name of the benchmark. It can be used by formatters.
   * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration_s}` seconds.
   * `cpu_interval` - time in milliseconds `#{inspect(__MODULE__)}` will be benchmarking cpu usage. Defaults to `#{@default_cpu_interval_ms}` milliseconds. Needs to be greater than or equal to `interfere_timeout`.
   * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay_s}` seconds.
@@ -53,6 +54,7 @@ defmodule Beamchmark do
   * `output_dir` - directory where results of benchmarking will be saved. Defaults to "`beamchmark`" directory under location provided by `System.tmp_dir!/0`.
   """
   @type options_t() :: [
+          name: String.t(),
           duration: pos_integer(),
           cpu_interval: pos_integer(),
           delay: non_neg_integer(),
@@ -70,6 +72,7 @@ defmodule Beamchmark do
   @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok
   def run(scenario, opts \\ []) do
     config = %Beamchmark.Suite.Configuration{
+      name: Keyword.get(opts, :name),
       duration: Keyword.get(opts, :duration, @default_duration_s),
       cpu_interval: Keyword.get(opts, :cpu_interval, @default_cpu_interval_ms),
       delay: Keyword.get(opts, :delay, @default_delay_s),

@@ -7,6 +7,7 @@ defmodule Beamchmark.Suite.Configuration do
   alias Beamchmark.Formatter
 
   @type t :: %__MODULE__{
+          name: String.t() | nil,
           duration: pos_integer(),
           cpu_interval: pos_integer(),
           delay: non_neg_integer(),
@@ -16,5 +17,5 @@ defmodule Beamchmark.Suite.Configuration do
         }
 
   @enforce_keys [:duration, :cpu_interval, :delay, :formatters, :compare?, :output_dir]
-  defstruct @enforce_keys
+  defstruct @enforce_keys  ++ [:name]
 end

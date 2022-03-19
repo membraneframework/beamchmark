@@ -24,7 +24,8 @@
   <body>
     <section class="header">
       <h1>Beamchmark Report</h2>
-      <h2><%= format_scenario(new_suite.scenario) %></h2>
+      <h2><%= new_suite.configuration.name %></h2>
+      <h3><%= format_scenario(new_suite.scenario) %></h3>
     </section>
     <section><%= system(new_suite.system_info) %></section>
     <section><%= configuration(new_suite.configuration) %></section>
