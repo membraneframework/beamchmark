@@ -207,7 +207,7 @@ Currently, you can output Beamchmark reports in the following ways:
 
   The HTML formatter will save the report to an HTML file.
   
-![Screenshot of an HTML report](https://user-images.githubusercontent.com/57190429/159236769-e246bba8-687b-4f9b-b444-482ec7514eaa.png)
+![Screenshot of an HTML report](https://user-images.githubusercontent.com/57190429/159237561-ed0ef956-e78d-4423-afd3-13860d39099b.png)
 
 
 * Custom formatters
