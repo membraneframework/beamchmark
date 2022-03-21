@@ -9,6 +9,8 @@
 <div id="normalScheduler"></div>
 <div id="cpuScheduler"></div>
 <div id="ioScheduler"></div>
+<div id="average_cpu_usage"></div>
+<div id="by_core_cpu_usage"></div>
 <script>
   <% has_base = not is_nil(base_measurements) %>
   let indicatorConfig =  {
@@ -52,11 +54,20 @@
       <% end %>
       domain: { row: 0, column: 1 },
       ...indicatorConfig
+    },
+    {
+      title: { text: "Average CPU Usage [%]" },
+      value: <%= new_measurements.cpu_info.average_all%>,
+      <%= if has_base do %>
+      delta: { reference: <%= base_measurements.cpu_info.average_all %>, ...deltaConfig },
+      <% end %>
+      domain: { row: 0, column: 2 },
+      ...indicatorConfig
     }
   ];
 
   let basicMetricsLayout = {
-    grid: { rows: 1, columns: 2, pattern: "independent" },
+    grid: { rows: 1, columns: 3, pattern: "independent" },
     height: 200,
     ...layoutConfig
   };
@@ -66,10 +77,10 @@
   let schedulersByType = [
     <%= for {title, column} <- Enum.with_index(["Normal", "CPU", "IO"]) do %>
       <%
-        metric = as_downcase_atom("total_#{title}")
-        {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
-        {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
-      %>
+     metric = as_downcase_atom("total_#{title}")
+     {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
+     {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
+     %>
       {
         title: { text: "<%= title %> Schedulers [s]" },
         value: <%= new_seconds %>,
@@ -101,10 +112,10 @@
   let totalSchedulers = [
     <%= for {title, column} <- Enum.with_index(["Total", "Weighted"]) do %>
       <%
-        metric = as_downcase_atom(title)
-        {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
-        {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
-      %>
+     metric = as_downcase_atom(title)
+     {new_seconds, new_percent} = new_measurements.scheduler_info[metric]
+     {base_seconds, base_percent} = if has_base, do: base_measurements.scheduler_info[metric], else: {0, 0}
+     %>
       {
         title: { text: "<%= title %> utilization [s]" },
         value: <%= new_seconds %>,
@@ -145,12 +156,12 @@
   };
 
   <%= for {title, scheduler_type} <- Enum.map(["Normal", "CPU", "IO"], &{&1, as_downcase_atom(&1)}),
-    Enum.any?([new_measurements, base_measurements], &(not is_nil(&1) and was_busy?(&1.scheduler_info[scheduler_type])))
-  do %>
+     Enum.any?([new_measurements, base_measurements], &(not is_nil(&1) and was_busy?(&1.scheduler_info[scheduler_type])))
+     do %>
     <%
-      div_id = Atom.to_string(scheduler_type) <> "Scheduler"
-      formatted_new = format_scheduler_info(new_measurements.scheduler_info[scheduler_type])
-    %>
+     div_id = Atom.to_string(scheduler_type) <> "Scheduler"
+     formatted_new = format_scheduler_info(new_measurements.scheduler_info[scheduler_type])
+     %>
     let <%= div_id %> = [
       <%= if has_base do %>
       <% formatted_base = format_scheduler_info(base_measurements.scheduler_info[scheduler_type]) %>
@@ -194,4 +205,98 @@
       plotlyConfig
     );
   <% end %>
+
+    <%
+     div_id = "average_cpu_usage"
+     formatted_new = format_average_cpu_usage(new_measurements.cpu_info.cpu_snapshots)
+     %>
+    let <%= div_id %> = [
+      <%= if has_base do %>
+      <% formatted_base = format_average_cpu_usage(base_measurements.cpu_info.cpu_snapshots) %>
+      {
+        name: "base",
+          mode: 'lines+markers',
+          marker: {
+            color: "#451F55",
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= formatted_base.average_cpu_usage %>],
+        x: [<%= formatted_base.time %>],
+      },
+      <% end %>
+      {
+        name: "new",
+          mode: 'lines+markers',
+          marker: {
+            color: "#E54F6D",
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= formatted_new.average_cpu_usage %>],
+        x: [<%= formatted_new.time %>],
+      }
+    ];
+
+    Plotly.newPlot(
+      "<%= div_id %>",
+      <%= div_id %>,
+      {
+        title: "Average CPU Usage",
+        xaxis: {
+          title: { text: "Time" },
+          },
+        yaxis: {
+          title: { text: "CPU Usage (all cores) [%]"}
+          }
+      },
+      plotlyConfig
+    );
+
+    <%
+     div_id = "by_core_cpu_usage"
+     formatted_new = format_cpu_usage_by_core(new_measurements.cpu_info.cpu_snapshots)
+     %>
+    let <%= div_id %> = [
+  <%= for core_id <- 0..formatted_new.cores_number-1
+     do %>
+      {
+        name: "<%="core_" <> to_string(core_id) %>",
+          mode: 'lines+markers',
+          marker: {
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= Enum.at(formatted_new.result,core_id)%>],
+        x: [<%= formatted_new.time %>],
+      },
+    <% end %>
+    ];
+
+    Plotly.newPlot(
+      "<%= div_id %>",
+      <%= div_id %>,
+      {
+        title: "CPU Usage by core",
+        xaxis: {
+          title: { text: "Time" },
+          },
+        yaxis: {
+          title: { text: "CPU Usage by core [%]"}
+          }
+      },
+      plotlyConfig
+    );
 </script>

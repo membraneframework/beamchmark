@@ -8,12 +8,13 @@ defmodule Beamchmark.Formatters.Console do
   alias Beamchmark.{Suite, Math}
   alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
 
+  @precision 2
+
   @impl true
   def format(%Suite{} = suite, _options) do
     system_info = format_system_info(suite.system_info)
     configuration = format_configuration(suite.configuration)
     measurements = format_measurements(suite.measurements)
-
     Enum.join([system_info, configuration, measurements], "\n")
   end
 
@@ -66,6 +67,12 @@ defmodule Beamchmark.Formatters.Console do
 
     #{entry_header("Context Switches")}
     #{format_numbers(measurements.context_switches)}
+
+    #{entry_header("CPU Usage Average")}
+    #{format_numbers(measurements.cpu_info.average_all)}%
+
+    #{entry_header("CPU Usage Per Core")}
+    #{format_cpu_by_core(measurements.cpu_info.average_by_core)}
     """
   end
 
@@ -79,8 +86,27 @@ defmodule Beamchmark.Formatters.Console do
     #{format_numbers(measurements.reductions, measurements_diff.reductions)}
 
     #{entry_header("Context Switches")}
-    #{format_numbers(measurements.context_switches, measurements_diff.context_switches)}
+    #{format_numbers(measurements.context_switches,
+    measurements_diff.context_switches)}
+
+    #{entry_header("CPU Usage Average")}
+    #{format_cpu_average(measurements.cpu_info.average_all,
+    measurements_diff.cpu_info.average_all)}
+
+
+    #{entry_header("CPU Usage Per Core")}
+    #{format_cpu_by_core(measurements.cpu_info.average_by_core,
+    measurements_diff.cpu_info.average_by_core)}
     """
+  end
+
+  defp format_cpu_average(cpu_average, cpu_average_diff) do
+    cpu_old = cpu_average - cpu_average_diff
+
+    cpu_diff_percent = Math.percent_diff(cpu_old, cpu_average)
+    color = get_color(cpu_average_diff)
+
+    "#{format_numbers(cpu_average)}% #{color} #{format_numbers(cpu_average_diff)}% #{format_numbers(cpu_diff_percent)}#{if cpu_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp format_scheduler_info(%Measurements.SchedulerInfo{} = scheduler_info) do
@@ -135,6 +161,23 @@ defmodule Beamchmark.Formatters.Console do
     "#{util} #{percent}%"
   end
 
+  defp format_cpu_by_core(cpu_by_core) do
+    Enum.map_join(cpu_by_core, "\n", fn {core_id, usage} ->
+      "Core: #{core_id} -> #{format_numbers(usage)} %"
+    end)
+  end
+
+  defp format_cpu_by_core(cpu_by_core, cpu_by_core_diff) do
+    Enum.map_join(cpu_by_core, "\n", fn {core_id, usage} ->
+      usage_diff = Map.get(cpu_by_core_diff, core_id)
+      usage_old = usage - usage_diff
+      usage_diff_percent = Math.percent_diff(usage_old, usage)
+      color = get_color(usage_diff)
+
+      "Core #{core_id} -> #{format_numbers(usage)}% #{color} #{format_numbers(usage_diff)} #{format_numbers(usage_diff_percent)} #{if usage_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+    end)
+  end
+
   defp format_scheduler_entry(sched_usage, sched_usage_diff)
        when is_map(sched_usage) and is_map(sched_usage_diff) do
     Enum.map_join(sched_usage, "\n", fn {sched_id, {util, percent}} ->
@@ -152,6 +195,10 @@ defmodule Beamchmark.Formatters.Console do
   end
 
   defp format_numbers(number) when is_integer(number), do: "#{number}"
+
+  defp format_numbers(float_value) when is_float(float_value) do
+    Float.round(float_value, @precision)
+  end
 
   defp format_numbers(number, number_diff) when is_integer(number) and is_integer(number_diff) do
     color = get_color(number_diff)

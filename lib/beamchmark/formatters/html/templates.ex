@@ -5,6 +5,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
   alias Beamchmark.Scenario
   alias Beamchmark.Suite.Measurements.SchedulerInfo
+  alias Beamchmark.Suite.Measurements.CpuInfo
 
   EEx.function_from_file(:def, :index, "priv/templates/index.html.eex", [
     :new_suite,
@@ -47,6 +48,65 @@ defmodule Beamchmark.Formatters.HTML.Templates do
           "\"#{percent_usage}%\""
         end)
     }
+  end
+
+  defp format_float(float) do
+    Float.round(float, 2)
+  end
+
+  @spec format_average_cpu_usage([CpuInfo.cpu_snapshot_t()]) :: %{
+          (cpu_usage_entry :: atom()) => String.t()
+        }
+  def format_average_cpu_usage(cpu_snapshots_reversed) do
+    cpu_snapshots = Enum.reverse(cpu_snapshots_reversed)
+
+    %{
+      average_cpu_usage:
+        Enum.map_join(cpu_snapshots, ", ", fn %{cpu_usage: _cpu_usage, average_all_cores: avg} ->
+          format_float(avg)
+        end),
+      time: Enum.map_join(1..length(cpu_snapshots), ", ", fn el -> el end)
+    }
+  end
+
+  @spec format_cpu_usage_by_core([CpuInfo.cpu_snapshot_t()]) :: %{
+          result: [String.t()],
+          time: String.t(),
+          cores_number: number()
+        }
+  def format_cpu_usage_by_core(cpu_snapshots_reversed) do
+    result_by_core_timestamp =
+      Enum.reduce(cpu_snapshots_reversed, %{}, fn %{cpu_usage: cpu_usage, average_all_cores: _avg},
+                                                  cpu_usage_acc ->
+        reduce_cpu_usage(cpu_usage, cpu_usage_acc)
+      end)
+
+    reversed_result =
+      Enum.reduce(result_by_core_timestamp, [], fn {_core_id, usage_timestamps}, result ->
+        [
+          Enum.map_join(usage_timestamps, ", ", fn value ->
+            format_float(value)
+          end)
+          | result
+        ]
+      end)
+
+    %{
+      result: Enum.reverse(reversed_result),
+      time: Enum.map_join(1..length(cpu_snapshots_reversed), ", ", fn el -> el end),
+      cores_number: length(reversed_result)
+    }
+  end
+
+  defp reduce_cpu_usage(cpu_usage, cpu_usage_acc) do
+    Enum.reduce(cpu_usage, cpu_usage_acc, fn {core_id, cpu_usage}, cpu_usage_acc ->
+      Map.update(
+        cpu_usage_acc,
+        core_id,
+        [cpu_usage],
+        &[cpu_usage | &1]
+      )
+    end)
   end
 
   @spec was_busy?(SchedulerInfo.sched_usage_t()) :: boolean()

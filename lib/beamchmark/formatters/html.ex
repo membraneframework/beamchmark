@@ -68,7 +68,7 @@ defmodule Beamchmark.Formatters.HTML do
     end
   end
 
-  defp get_browser do
+  defp get_browser() do
     case :os.type() do
       {:unix, :darwin} -> "open"
       {:unix, _} -> "xdg-open"

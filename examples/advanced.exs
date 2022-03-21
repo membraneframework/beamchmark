@@ -43,6 +43,7 @@ end
 Beamchmark.run(AdvancedScenario,
   duration: 15,
   delay: 5,
+  cpu_interval: 500,
   compare?: true,
   output_dir: "beamchmark_output",
   formatters: [

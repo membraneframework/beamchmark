@@ -4,12 +4,15 @@ defmodule Beamchmark.Suite.Measurements do
   """
 
   alias __MODULE__.SchedulerInfo
+  alias __MODULE__.CpuInfo
+  alias Beamchmark.Suite.CPU.CpuTask
 
   @type reductions_t() :: non_neg_integer()
   @type context_switches_t() :: non_neg_integer()
 
   @type t :: %__MODULE__{
           scheduler_info: SchedulerInfo.t(),
+          cpu_info: CpuInfo.t(),
           reductions: reductions_t(),
           context_switches: context_switches_t()
         }
@@ -19,13 +22,20 @@ defmodule Beamchmark.Suite.Measurements do
     :reductions,
     :context_switches
   ]
-  defstruct @enforce_keys
+  defstruct [
+    :scheduler_info,
+    :reductions,
+    :context_switches,
+    :cpu_info
+  ]
 
-  @spec gather(pos_integer()) :: t()
-  def gather(duration) do
+  @spec gather(pos_integer(), pos_integer()) :: t()
+  def gather(duration, cpu_interval) do
     sample = :scheduler.sample_all()
 
     Process.sleep(:timer.seconds(duration))
+
+    cpu_task = CpuTask.start_link(cpu_interval, duration * 1000)
 
     scheduler_info =
       sample
@@ -37,21 +47,26 @@ defmodule Beamchmark.Suite.Measurements do
     # second element of this tuple is always 0
     {context_switches, 0} = :erlang.statistics(:context_switches)
 
+    {:ok, cpu_info} = Task.await(cpu_task, :infinity)
+
     %__MODULE__{
       scheduler_info: scheduler_info,
       reductions: reductions,
-      context_switches: context_switches
+      context_switches: context_switches,
+      cpu_info: cpu_info
     }
   end
 
   @spec diff(t(), t()) :: t()
   def diff(base, new) do
     scheduler_info_diff = SchedulerInfo.diff(base.scheduler_info, new.scheduler_info)
+    cpu_info_diff = CpuInfo.diff(base.cpu_info, new.cpu_info)
 
     %__MODULE__{
       scheduler_info: scheduler_info_diff,
       reductions: new.reductions - base.reductions,
-      context_switches: new.context_switches - base.context_switches
+      context_switches: new.context_switches - base.context_switches,
+      cpu_info: cpu_info_diff
     }
   end
 end
