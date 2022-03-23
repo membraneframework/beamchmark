@@ -33,9 +33,9 @@ defmodule Beamchmark.Suite.Measurements do
   def gather(duration, cpu_interval) do
     sample = :scheduler.sample_all()
 
-    Process.sleep(:timer.seconds(duration))
-
     cpu_task = CpuTask.start_link(cpu_interval, duration * 1000)
+
+    Process.sleep(:timer.seconds(duration))
 
     scheduler_info =
       sample
