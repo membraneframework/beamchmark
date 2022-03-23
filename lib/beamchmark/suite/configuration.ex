@@ -17,5 +17,5 @@ defmodule Beamchmark.Suite.Configuration do
         }
 
   @enforce_keys [:duration, :cpu_interval, :delay, :formatters, :compare?, :output_dir]
-  defstruct @enforce_keys  ++ [:name]
+  defstruct @enforce_keys ++ [:name]
 end
