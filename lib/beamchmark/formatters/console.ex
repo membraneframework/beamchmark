@@ -12,21 +12,26 @@ defmodule Beamchmark.Formatters.Console do
 
   @impl true
   def format(%Suite{} = suite, _options) do
+    benchmark_name = suite.configuration.name
     system_info = format_system_info(suite.system_info)
     configuration = format_configuration(suite.configuration)
     measurements = format_measurements(suite.measurements)
-    Enum.join([system_info, configuration, measurements], "\n")
+
+    [benchmark_name, system_info, configuration, measurements]
+    |> Enum.join("\n")
   end
 
   @impl true
   def format(%Suite{} = new_suite, %Suite{} = base_suite, _options) do
+    benchmark_name = new_suite.configuration.name
     system_info = format_system_info(new_suite.system_info)
     configuration = format_configuration(new_suite.configuration)
     base_measurements = format_measurements(base_suite.measurements)
     diff_measurements = Measurements.diff(base_suite.measurements, new_suite.measurements)
     new_measurements = format_measurements(new_suite.measurements, diff_measurements)
 
-    Enum.join([system_info, configuration, base_measurements, new_measurements], "\n")
+    [benchmark_name, system_info, configuration, base_measurements, new_measurements]
+    |> Enum.join("\n")
   end
 
   @impl true
@@ -194,7 +199,7 @@ defmodule Beamchmark.Formatters.Console do
     "#{util} #{percent}% #{color} #{util_diff} #{percent_diff}#{if percent_diff != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
-  defp format_numbers(number) when is_integer(number), do: "#{number}"
+  defp format_numbers(number) when is_integer(number) or number == :nan, do: "#{number}"
 
   defp format_numbers(float_value) when is_float(float_value) do
     Float.round(float_value, @precision)

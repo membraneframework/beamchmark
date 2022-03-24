@@ -41,6 +41,7 @@ defmodule AdvancedScenario do
 end
 
 Beamchmark.run(AdvancedScenario,
+  name: "AdvancedScenario performance - otp 23 vs otp 24",
   duration: 15,
   delay: 5,
   cpu_interval: 500,
