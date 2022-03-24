@@ -1,7 +1,7 @@
 defmodule Beamchmark.MixProject do
   use Mix.Project
 
-  @version "1.1.0"
+  @version "1.2.0"
   @github_url "https://github.com/membraneframework/beamchmark"
 
   def project do
