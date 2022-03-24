@@ -59,24 +59,24 @@ defmodule Beamchmark.Suite do
     Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
     measurements = Measurements.gather(config.duration, config.cpu_interval)
 
-    case Task.shutdown(task, :brutal_kill) do
-      # the scenario was still running
-      nil ->
-        %__MODULE__{suite | measurements: measurements}
+    if Process.alive?(task.pid) do
+      Mix.shell().info("Benchmarking finished. Stopping scenario.")
 
-      # the scenario has finished before (config.delay + config.duration) seconds
-      {:ok, _result} ->
-        Mix.shell().error("""
-        The scenario had been completed before the measurements ended.
-        Consider decreasing duration/delay or making the scenario run longer to get more accurate results.
-        """)
+      case Task.shutdown(task, :brutal_kill) do
+        {:exit, reason} ->
+          raise "The scenario process unexpectedly died due to #{inspect(reason)}."
 
-        %__MODULE__{suite | measurements: measurements}
-
-      # should never happen
-      {:exit, reason} ->
-        raise "The scenario process unexpectedly died due to #{inspect(reason)}."
+        _other ->
+          :ok
+      end
+    else
+      Mix.shell().error("""
+      The scenario had been completed before the measurements ended.
+      Consider decreasing duration/delay or making the scenario run longer to get more accurate results.
+      """)
     end
+
+    %__MODULE__{suite | measurements: measurements}
   end
 
   @spec save(t()) :: :ok
