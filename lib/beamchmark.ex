@@ -23,7 +23,7 @@ defmodule Beamchmark do
   `#{inspect(__MODULE__)}` measures following types of scheduler utilization:
   * normal/cpu/io - average utilization of single scheduler of given type
   * total normal/cpu/io - average utilization of all schedulers of given type. E.g total normal equals 1.0 when
-  each of normal schedulers have been acive all the time
+  each of normal schedulers have been active all the time
   * total - average utilization of all schedulers
   * weighted - average utilization of all schedulers weighted against maximum amount of available CPU time
 
