@@ -46,7 +46,7 @@ defmodule Beamchmark.Suite.SystemInfo do
       case os do
         :macOS -> System.cmd("sysctl", ["-n", "hw.memsize"])
         :Linux -> System.cmd("awk", ["/MemTotal/ {print $2}", "/proc/meminfo"])
-        _ -> 0
+        _os -> 0
       end
 
     memory_str |> String.trim() |> String.to_integer()

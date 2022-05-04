@@ -18,7 +18,7 @@ defmodule Beamchmark.Formatters.Utils do
     end
   end
 
-  def format_memory(_) do
+  def format_memory(_mem) do
     "-"
   end
 end
