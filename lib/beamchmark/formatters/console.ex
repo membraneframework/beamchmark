@@ -5,6 +5,7 @@ defmodule Beamchmark.Formatters.Console do
 
   @behaviour Beamchmark.Formatter
 
+  alias Beamchmark.Formatters.Utils
   alias Beamchmark.{Suite, Math}
   alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
 
@@ -46,6 +47,7 @@ defmodule Beamchmark.Formatters.Console do
     Elixir version: #{system_info.elixir_version}
     OTP version: #{system_info.otp_version}
     OS: #{system_info.os}
+    Memory: #{Utils.format_memory(system_info.mem)}
     System arch: #{system_info.arch}
     NIF version: #{system_info.nif_version}
     Cores: #{system_info.num_cores}

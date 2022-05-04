@@ -8,11 +8,12 @@ defmodule Beamchmark.Suite.SystemInfo do
           otp_version: String.t(),
           nif_version: String.t(),
           os: atom(),
+          mem: pos_integer(),
           arch: String.t(),
           num_cores: pos_integer()
         }
 
-  @enforce_keys [:elixir_version, :otp_version, :nif_version, :os, :arch, :num_cores]
+  @enforce_keys [:elixir_version, :otp_version, :nif_version, :os, :mem, :arch, :num_cores]
   defstruct @enforce_keys
 
   @spec init :: t()
@@ -22,6 +23,7 @@ defmodule Beamchmark.Suite.SystemInfo do
       otp_version: :erlang.system_info(:otp_release) |> List.to_string(),
       nif_version: :erlang.system_info(:nif_version) |> List.to_string(),
       os: os(),
+      mem: mem(os()),
       arch: :erlang.system_info(:system_architecture) |> List.to_string(),
       num_cores: System.schedulers_online()
     }
@@ -36,5 +38,17 @@ defmodule Beamchmark.Suite.SystemInfo do
       :freebsd -> :FreeBSD
       _other -> :Linux
     end
+  end
+
+  @spec mem(atom()) :: integer()
+  defp mem(os) do
+    {memory_str, 0} =
+      case os do
+        :macOS -> System.cmd("sysctl", ["-n", "hw.memsize"])
+        :Linux -> System.cmd("awk", ["/MemTotal/ {print $2}", "/proc/meminfo"])
+        _ -> 0
+      end
+
+    memory_str |> String.trim() |> String.to_integer()
   end
 end
