@@ -8,8 +8,8 @@ defmodule Beamchmark.Formatters.UtilsTest do
       assert is_binary(Utils.format_memory(12_345))
     end
 
-    test "format_memory/1 returns unknown when memory is 0" do
-      assert Utils.format_memory(0) == "-"
+    test "format_memory/1 returns unknown when memory is unknown" do
+      assert Utils.format_memory(:unknown) == "-"
     end
 
     test "format_memory/1 returns human-readable memory size" do
