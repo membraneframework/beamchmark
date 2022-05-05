@@ -8,7 +8,7 @@ defmodule Beamchmark.Suite.SystemInfo do
           otp_version: String.t(),
           nif_version: String.t(),
           os: atom(),
-          mem: pos_integer(),
+          mem: pos_integer() | :unknown,
           arch: String.t(),
           num_cores: pos_integer()
         }
@@ -40,15 +40,23 @@ defmodule Beamchmark.Suite.SystemInfo do
     end
   end
 
-  @spec mem(atom()) :: integer()
-  defp mem(os) do
-    {memory_str, 0} =
-      case os do
-        :macOS -> System.cmd("sysctl", ["-n", "hw.memsize"])
-        :Linux -> System.cmd("awk", ["/MemTotal/ {print $2}", "/proc/meminfo"])
-        _os -> 0
-      end
+  @spec mem(atom()) :: pos_integer() | :unknown
+  defp mem(:macOS) do
+    System.cmd("sysctl", ["-n", "hw.memsize"])
+    |> elem(0)
+    |> String.trim()
+    |> String.to_integer()
+  end
 
-    memory_str |> String.trim() |> String.to_integer()
+  defp mem(:Linux) do
+    System.cmd("awk", ["/MemTotal/ {print $2}", "/proc/meminfo"])
+    |> elem(0)
+    |> String.trim()
+    |> String.to_integer()
+    |> Kernel.*(1024)
+  end
+
+  defp mem(_os) do
+    :unknown
   end
 end
