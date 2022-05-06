@@ -56,12 +56,13 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
 
   @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
   defp cpu_snapshot() do
-    to_cpu_snapshot(:cpu_sup.util([:per_cpu]))
+    IO.inspect(:cpu_sup.util([:per_cpu]))
+    |> to_cpu_snapshot()
   end
 
   # Converts output of `:cpu_sup.util([:per_cpu])` to `cpu_snapshot_t`
   @spec to_cpu_snapshot(any()) :: CpuInfo.cpu_snapshot_t()
-  defp to_cpu_snapshot(cpu_util_result) do
+  defp to_cpu_snapshot(cpu_util_result) when is_list(cpu_util_result) do
     cpu_core_usage_map =
       Enum.reduce(cpu_util_result, %{}, fn {core_id, usage, _idle, _mix}, cpu_core_usage_acc ->
         Map.put(cpu_core_usage_acc, core_id, usage)
@@ -75,6 +76,13 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     %{
       cpu_usage: cpu_core_usage_map,
       average_all_cores: average_all_cores
+    }
+  end
+
+  defp to_cpu_snapshot({:all, avg_usage, _non_busy, _misc}) do
+    %{
+      cpu_usage: %{all: avg_usage / 1},
+      average_all_cores: avg_usage / 1
     }
   end
 end

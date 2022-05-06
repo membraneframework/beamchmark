@@ -11,4 +11,5 @@ defmodule SimpleScenario do
   end
 end
 
-Beamchmark.run(SimpleScenario, duration: 5, delay: 1)
+# Beamchmark.run(SimpleScenario, duration: 5, delay: 1)
+Beamchmark.run(SimpleScenario, duration: 5, delay: 1, formatters: [Beamchmark.Formatters.HTML])

@@ -40,7 +40,9 @@ defmodule Beamchmark.Formatters.HTML do
 
   @impl true
   def write(content, options) do
-    output_path = options |> Keyword.get(:output_path, @default_output_path) |> Path.expand()
+    output_path =
+      options |> Keyword.get(:output_path, @default_output_path) |> Path.expand() |> format_path()
+
     auto_open? = Keyword.get(options, :auto_open?, @default_auto_open)
 
     dirname = Path.dirname(output_path)
@@ -73,6 +75,13 @@ defmodule Beamchmark.Formatters.HTML do
       {:unix, :darwin} -> "open"
       {:unix, _} -> "xdg-open"
       {:win32, _} -> "explorer"
+    end
+  end
+
+  def format_path(path) do
+    case :os.type() do
+      {:win32, _} -> String.replace(path, "/", "\\")
+      _ -> path
     end
   end
 end
