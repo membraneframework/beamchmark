@@ -3,6 +3,8 @@ defmodule Beamchmark.Suite.SystemInfo do
   The module defines a struct containing various information about system that is used for benchmarking.
   """
 
+  alias Beamchmark.Utils
+
   @type t :: %__MODULE__{
           elixir_version: String.t(),
           otp_version: String.t(),
@@ -21,20 +23,9 @@ defmodule Beamchmark.Suite.SystemInfo do
       elixir_version: System.version(),
       otp_version: :erlang.system_info(:otp_release) |> List.to_string(),
       nif_version: :erlang.system_info(:nif_version) |> List.to_string(),
-      os: os(),
+      os: Utils.os(),
       arch: :erlang.system_info(:system_architecture) |> List.to_string(),
       num_cores: System.schedulers_online()
     }
-  end
-
-  defp os() do
-    {_family, name} = :os.type()
-
-    case name do
-      :darwin -> :macOS
-      :nt -> :Windows
-      :freebsd -> :FreeBSD
-      _other -> :Linux
-    end
   end
 end

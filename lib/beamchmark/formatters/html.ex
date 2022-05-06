@@ -5,6 +5,7 @@ defmodule Beamchmark.Formatters.HTML do
 
   @behaviour Beamchmark.Formatter
 
+  alias Beamchmark.Utils
   alias Beamchmark.Suite
   alias __MODULE__.Templates
 
@@ -71,16 +72,16 @@ defmodule Beamchmark.Formatters.HTML do
   end
 
   defp get_browser() do
-    case :os.type() do
-      {:unix, :darwin} -> "open"
-      {:unix, _} -> "xdg-open"
-      {:win32, _} -> "explorer"
+    case Utils.os() do
+      :macOS -> "open"
+      :Windows -> "explorer"
+      :Linux -> "xdg-open"
     end
   end
 
-  def format_path(path) do
-    case :os.type() do
-      {:win32, _} -> String.replace(path, "/", "\\")
+  defp format_path(path) do
+    case Utils.os() do
+      :Windows -> String.replace(path, "/", "\\")
       _ -> path
     end
   end
