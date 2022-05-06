@@ -82,7 +82,7 @@ defmodule Beamchmark.Formatters.HTML do
   defp format_path(path) do
     case Utils.os() do
       :Windows -> String.replace(path, "/", "\\")
-      _ -> path
+      _os -> path
     end
   end
 end

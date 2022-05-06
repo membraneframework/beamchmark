@@ -56,8 +56,7 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
 
   @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
   defp cpu_snapshot() do
-    IO.inspect(:cpu_sup.util([:per_cpu]))
-    |> to_cpu_snapshot()
+    :cpu_sup.util([:per_cpu]) |> to_cpu_snapshot()
   end
 
   # Converts output of `:cpu_sup.util([:per_cpu])` to `cpu_snapshot_t`
