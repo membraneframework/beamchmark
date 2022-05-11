@@ -11,6 +11,7 @@ defmodule Beamchmark.Formatters.Utils do
     log_mem = Math.log(mem, 1024)
 
     cond do
+      log_mem >= 4 -> "#{div(mem, Math.pow(1024, 4))} TB"
       log_mem >= 3 -> "#{div(mem, Math.pow(1024, 3))} GB"
       log_mem >= 2 -> "#{div(mem, Math.pow(1024, 2))} MB"
       log_mem >= 1 -> "#{div(mem, Math.pow(1024, 1))} KB"
