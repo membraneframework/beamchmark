@@ -13,6 +13,7 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
   """
   use Task
 
+  alias Beamchmark.Utils
   alias Beamchmark.Suite.Measurements.CpuInfo
 
   @interfere_timeout 100
@@ -56,12 +57,27 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
 
   @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
   defp cpu_snapshot() do
-    :cpu_sup.util([:per_cpu]) |> to_cpu_snapshot()
+    cpu_snapshot(Utils.os())
   end
 
-  # Converts output of `:cpu_sup.util([:per_cpu])` to `cpu_snapshot_t`
-  @spec to_cpu_snapshot(any()) :: CpuInfo.cpu_snapshot_t()
-  defp to_cpu_snapshot(cpu_util_result) when is_list(cpu_util_result) do
+  defp cpu_snapshot(:Windows) do
+    {cpu_util_result, 0} = System.cmd("wmic", ["cpu", "get", "loadpercentage"])
+
+    average_all_cores =
+      cpu_util_result
+      |> String.split("\r\r\n")
+      |> Enum.at(1)
+      |> String.trim()
+      |> Integer.parse()
+      |> elem(0)
+      |> Kernel./(1)
+
+    %{cpu_usage: %{}, average_all_cores: average_all_cores}
+  end
+
+  defp cpu_snapshot(_os) do
+    cpu_util_result = :cpu_sup.util([:per_cpu])
+
     cpu_core_usage_map =
       Enum.reduce(cpu_util_result, %{}, fn {core_id, usage, _idle, _mix}, cpu_core_usage_acc ->
         Map.put(cpu_core_usage_acc, core_id, usage)
@@ -75,13 +91,6 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     %{
       cpu_usage: cpu_core_usage_map,
       average_all_cores: average_all_cores
-    }
-  end
-
-  defp to_cpu_snapshot({:all, avg_usage, _non_busy, _misc}) do
-    %{
-      cpu_usage: %{all: avg_usage / 1},
-      average_all_cores: avg_usage / 1
     }
   end
 end
