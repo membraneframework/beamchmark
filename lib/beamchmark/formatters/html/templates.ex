@@ -3,6 +3,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
   require EEx
 
+  alias Beamchmark.Formatters.Utils
   alias Beamchmark.Scenario
   alias Beamchmark.Suite.Measurements.SchedulerInfo
   alias Beamchmark.Suite.Measurements.CpuInfo
