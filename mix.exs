@@ -22,14 +22,7 @@ defmodule Beamchmark.MixProject do
       name: "Beamchmark",
       source_url: @github_url,
       homepage_url: "https://membraneframework.org",
-      docs: docs(),
-
-      # dialyzer
-      dialyzer: [
-        plt_add_apps: [
-          :mix
-        ]
-      ]
+      docs: docs()
     ]
   end
 
@@ -54,7 +47,8 @@ defmodule Beamchmark.MixProject do
 
   defp dialyzer() do
     opts = [
-      flags: [:error_handling]
+      flags: [:error_handling],
+      plt_add_apps: [:mix]
     ]
 
     if System.get_env("CI") == "true" do
