@@ -2,8 +2,8 @@ defmodule Beamchmark.Formatters.HTMLTest do
   use ExUnit.Case, async: true
 
   alias Beamchmark.Formatters.HTML
-  alias Beamchmark.Suite.CPU.CpuTask
   alias Beamchmark.Formatters.HTML.Templates
+  alias Beamchmark.Suite.CPU.CpuTask
 
   @temp_directory TestUtils.temporary_dir(__MODULE__)
   @assets_paths TestUtils.html_assets_paths()

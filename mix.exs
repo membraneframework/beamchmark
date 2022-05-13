@@ -8,10 +8,11 @@ defmodule Beamchmark.MixProject do
     [
       app: :beamchmark,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      dialyzer: dialyzer(),
 
       # hex
       description: "Tool for measuring EVM performance",
@@ -21,14 +22,7 @@ defmodule Beamchmark.MixProject do
       name: "Beamchmark",
       source_url: @github_url,
       homepage_url: "https://membraneframework.org",
-      docs: docs(),
-
-      # dialyzer
-      dialyzer: [
-        plt_add_apps: [
-          :mix
-        ]
-      ]
+      docs: docs()
     ]
   end
 
@@ -49,6 +43,21 @@ defmodule Beamchmark.MixProject do
       {:ex_doc, "~> 0.27.0", only: :dev, runtime: false},
       {:math, "~> 0.7.0"}
     ]
+  end
+
+  defp dialyzer() do
+    opts = [
+      flags: [:error_handling],
+      plt_add_apps: [:mix]
+    ]
+
+    if System.get_env("CI") == "true" do
+      # Store PLTs in cacheable directory for CI
+      File.mkdir_p!(Path.join([__DIR__, "priv", "plts"]))
+      [plt_local_path: "priv/plts", plt_core_path: "priv/plts"] ++ opts
+    else
+      opts
+    end
   end
 
   defp package do

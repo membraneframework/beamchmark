@@ -1,7 +1,7 @@
 defmodule Beamchmark.FormatterTest do
   use ExUnit.Case, async: true
 
-  alias Beamchmark.{Suite, Formatter}
+  alias Beamchmark.{Formatter, Suite}
 
   @temp_directory TestUtils.temporary_dir(__MODULE__)
 
