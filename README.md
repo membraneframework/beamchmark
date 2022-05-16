@@ -7,6 +7,7 @@ Tool for measuring EVM performance.
 
 At the moment, the main interest of Beamchmark is scheduler utilization, reductions and the number of context switches.
 For more information please refer to API docs.
+Currently, Beamchmark is supported on macOS, Linux and partially on Windows.
 
 ## Beamchmark and Benchee
 Beamchmark should be used when you want to measure BEAM performance while it is running your application.
@@ -212,7 +213,7 @@ Currently, you can output Beamchmark reports in the following ways:
 
 * Custom formatters
 
-  You can implement your custom formatters by overriding `Beamchmark.Formatter` behaviour.
+  You can implement your custom formatters by overriding `Beamchmark.`Formatter` behavior.
 
 ## Copyright and License
 Copyright 2021, [Software Mansion](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=beamchmark)
