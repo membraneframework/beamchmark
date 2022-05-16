@@ -23,7 +23,7 @@ defmodule Beamchmark.Suite.SystemInfo do
       elixir_version: System.version(),
       otp_version: :erlang.system_info(:otp_release) |> List.to_string(),
       nif_version: :erlang.system_info(:nif_version) |> List.to_string(),
-      os: Utils.os(),
+      os: Utils.get_os_name(),
       arch: :erlang.system_info(:system_architecture) |> List.to_string(),
       num_cores: System.schedulers_online()
     }

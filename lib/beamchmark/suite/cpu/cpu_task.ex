@@ -24,15 +24,32 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
   @spec start_link(cpu_interval :: pos_integer(), duration :: pos_integer()) :: Task.t()
   def start_link(cpu_interval, duration) do
     Task.async(fn ->
-      run_poll(
-        cpu_interval,
-        duration
-      )
+      run_poll(cpu_interval, duration)
     end)
   end
 
   @spec run_poll(number(), number()) :: {:ok, CpuInfo.t()}
   defp run_poll(cpu_interval, duration) do
+    do_run_poll(Utils.get_os_name(), cpu_interval, duration)
+  end
+
+  @spec do_run_poll(atom(), number(), number()) :: {:ok, CpuInfo.t()}
+  defp do_run_poll(:Windows, cpu_interval, duration) do
+    iterations_number = trunc(duration / cpu_interval)
+    pid = self()
+
+    Task.async(fn ->
+      Enum.each(0..(iterations_number - 1), fn _it_num ->
+        spawn(__MODULE__, :cpu_snapshot, [:Windows, pid])
+        Process.sleep(cpu_interval)
+      end)
+    end)
+
+    cpu_snapshots = receive_snapshots(iterations_number)
+    {:ok, CpuInfo.from_cpu_snapshots(cpu_snapshots)}
+  end
+
+  defp do_run_poll(_os, cpu_interval, duration) do
     iterations_number = trunc(duration / cpu_interval)
     :cpu_sup.start()
     # First run returns garbage acc to docs
@@ -55,27 +72,51 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     {:ok, CpuInfo.from_cpu_snapshots(cpu_snapshots)}
   end
 
-  @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
-  defp cpu_snapshot() do
-    cpu_snapshot(Utils.get_os_name())
+  defp receive_snapshots(snapshots_no, cpu_snapshots \\ []) do
+    case snapshots_no do
+      0 ->
+        cpu_snapshots
+
+      _snapshots_no ->
+        cpu_snapshots =
+          receive do
+            {:cpu_snapshot, snapshot} ->
+              IO.puts("received snapshot")
+              [snapshot | cpu_snapshots]
+          end
+
+        receive_snapshots(snapshots_no - 1, cpu_snapshots)
+    end
   end
 
-  defp cpu_snapshot(:Windows) do
+  @spec cpu_snapshot(:Windows, pid()) :: nil
+  def(cpu_snapshot(:Windows, pid)) do
     {cpu_util_result, 0} = System.cmd("wmic", ["cpu", "get", "loadpercentage"])
 
     average_all_cores =
-      cpu_util_result
-      |> String.split("\r\r\n")
-      |> Enum.at(1)
-      |> String.trim()
-      |> Integer.parse()
-      |> elem(0)
-      |> Kernel./(1)
+      try do
+        cpu_util_result
+        |> String.split("\r\r\n")
+        |> Enum.at(1)
+        |> String.trim()
+        |> Float.parse()
+        |> elem(0)
+      rescue
+        ArgumentError -> 0.0
+      end
 
-    %{cpu_usage: %{}, average_all_cores: average_all_cores}
+    send(
+      pid,
+      {:cpu_snapshot,
+       %{
+         cpu_usage: %{},
+         average_all_cores: average_all_cores
+       }}
+    )
   end
 
-  defp cpu_snapshot(_os) do
+  @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
+  defp cpu_snapshot() do
     cpu_util_result = :cpu_sup.util([:per_cpu])
 
     cpu_core_usage_map =
