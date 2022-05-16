@@ -3,8 +3,8 @@ defmodule Beamchmark.Utils do
   The module defines utility functions for Beamchmark.
   """
 
-  @spec os :: :FreeBSD | :Linux | :Windows | :macOS
-  def os() do
+  @spec get_os_name :: :FreeBSD | :Linux | :Windows | :macOS
+  def get_os_name() do
     {_family, name} = :os.type()
 
     case name do

@@ -72,15 +72,16 @@ defmodule Beamchmark.Formatters.HTML do
   end
 
   defp get_browser() do
-    case Utils.os() do
+    case Utils.get_os_name() do
       :macOS -> "open"
       :Windows -> "explorer"
       :Linux -> "xdg-open"
+      os_name -> raise RuntimeError, message: "Beamchmark not supported for #{os_name}"
     end
   end
 
   defp format_path(path) do
-    case Utils.os() do
+    case Utils.get_os_name() do
       :Windows -> String.replace(path, "/", "\\")
       _os -> path
     end

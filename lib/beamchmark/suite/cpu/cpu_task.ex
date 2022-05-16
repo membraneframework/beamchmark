@@ -57,7 +57,7 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
 
   @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
   defp cpu_snapshot() do
-    cpu_snapshot(Utils.os())
+    cpu_snapshot(Utils.get_os_name())
   end
 
   defp cpu_snapshot(:Windows) do
