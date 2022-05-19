@@ -213,7 +213,7 @@ Currently, you can output Beamchmark reports in the following ways:
 
 * Custom formatters
 
-  You can implement your custom formatters by overriding `Beamchmark.Formatter` behavior.
+  You can implement your custom formatters by overriding `Beamchmark.Formatter` behaviour.
 
 ## Copyright and License
 Copyright 2021, [Software Mansion](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=beamchmark)
