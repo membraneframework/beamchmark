@@ -7,6 +7,7 @@ Tool for measuring EVM performance.
 
 At the moment, the main interest of Beamchmark is scheduler utilization, reductions and the number of context switches.
 For more information please refer to API docs.
+Currently, Beamchmark is supported on macOS, Linux and partially on Windows.
 
 ## Beamchmark and Benchee
 Beamchmark should be used when you want to measure BEAM performance while it is running your application.

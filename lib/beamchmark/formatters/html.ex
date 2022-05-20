@@ -7,6 +7,7 @@ defmodule Beamchmark.Formatters.HTML do
 
   alias __MODULE__.Templates
   alias Beamchmark.Suite
+  alias Beamchmark.Utils
 
   @default_output_path "index.html"
   @default_auto_open true
@@ -40,7 +41,9 @@ defmodule Beamchmark.Formatters.HTML do
 
   @impl true
   def write(content, options) do
-    output_path = options |> Keyword.get(:output_path, @default_output_path) |> Path.expand()
+    output_path =
+      options |> Keyword.get(:output_path, @default_output_path) |> Path.expand() |> format_path()
+
     auto_open? = Keyword.get(options, :auto_open?, @default_auto_open)
 
     dirname = Path.dirname(output_path)
@@ -69,10 +72,18 @@ defmodule Beamchmark.Formatters.HTML do
   end
 
   defp get_browser() do
-    case :os.type() do
-      {:unix, :darwin} -> "open"
-      {:unix, _} -> "xdg-open"
-      {:win32, _} -> "explorer"
+    case Utils.get_os_name() do
+      :macOS -> "open"
+      :Windows -> "explorer"
+      :Linux -> "xdg-open"
+      os_name -> raise RuntimeError, message: "Beamchmark not supported for #{os_name}"
+    end
+  end
+
+  defp format_path(path) do
+    case Utils.get_os_name() do
+      :Windows -> String.replace(path, "/", "\\")
+      _os -> path
     end
   end
 end
