@@ -6,6 +6,7 @@
       <th>OTP version</th>
       <th>NIF version</th>
       <th>OS</th>
+      <th>Memory</th>
       <th>Architecture</th>
       <th>Number of cores</th>
     </tr>
@@ -16,6 +17,7 @@
       <td><%= system_info.otp_version %></td>
       <td><%= system_info.nif_version %></td>
       <td><%= system_info.os %></td>
+      <td><%= Utils.format_memory(system_info.mem) %></td>
       <td><%= system_info.arch %></td>
       <td><%= system_info.num_cores %></td>
     </tr>

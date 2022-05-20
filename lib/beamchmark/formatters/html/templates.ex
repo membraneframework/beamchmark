@@ -3,9 +3,9 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
   require EEx
 
+  alias Beamchmark.Formatters.Utils
   alias Beamchmark.Scenario
-  alias Beamchmark.Suite.Measurements.SchedulerInfo
-  alias Beamchmark.Suite.Measurements.CpuInfo
+  alias Beamchmark.Suite.Measurements.{CpuInfo, SchedulerInfo}
 
   EEx.function_from_file(:def, :index, "priv/templates/index.html.eex", [
     :new_suite,

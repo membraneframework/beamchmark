@@ -13,8 +13,8 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
   """
   use Task
 
-  alias Beamchmark.Utils
   alias Beamchmark.Suite.Measurements.CpuInfo
+  alias Beamchmark.Utils
 
   @interfere_timeout 100
 

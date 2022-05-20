@@ -3,8 +3,8 @@ defmodule Beamchmark.Suite.Measurements do
   The module is responsible for gathering BEAM statistics during benchmarking.
   """
 
-  alias __MODULE__.SchedulerInfo
   alias __MODULE__.CpuInfo
+  alias __MODULE__.SchedulerInfo
   alias Beamchmark.Suite.CPU.CpuTask
 
   @type reductions_t() :: non_neg_integer()

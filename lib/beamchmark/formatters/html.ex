@@ -5,9 +5,9 @@ defmodule Beamchmark.Formatters.HTML do
 
   @behaviour Beamchmark.Formatter
 
-  alias Beamchmark.Utils
-  alias Beamchmark.Suite
   alias __MODULE__.Templates
+  alias Beamchmark.Suite
+  alias Beamchmark.Utils
 
   @default_output_path "index.html"
   @default_auto_open true
