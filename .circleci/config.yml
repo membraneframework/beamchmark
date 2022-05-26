@@ -18,7 +18,7 @@ jobs:
             [choco-cache]
           
       - run:
-          name: "Build"
+          name: Install Elixir
           command: choco install -y erlang elixir
             
       - save_cache:
@@ -27,12 +27,12 @@ jobs:
             - C:\Users\circleci\AppData\Local\Temp
 
       - run: 
-          name: "Deps"
+          name: Get dependencies
           command: |
             refreshenv && mix local.hex --force && mix deps.get
 
       - run: 
-          name: "Test"
+          name: Run all tests
           command: |
             refreshenv && mix test --warnings-as-errors
 
