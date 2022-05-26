@@ -1,6 +1,40 @@
 version: 2.1
 orbs:
   elixir: membraneframework/elixir@1
+  win: circleci/windows@4.1
+
+jobs:
+  windows_test:
+    executor: 
+      name: win/default
+      size: medium
+      shell: cmd.exe
+
+    steps: 
+      - checkout
+
+      - restore_cache:
+          keys:
+            [choco-cache]
+          
+      - run:
+          name: Install Elixir
+          command: choco install -y erlang elixir
+            
+      - save_cache:
+          key: choco-cache
+          paths:
+            - C:\Users\circleci\AppData\Local\Temp
+
+      - run: 
+          name: Get dependencies
+          command: |
+            refreshenv && mix local.hex --force && mix deps.get
+
+      - run: 
+          name: Run all tests
+          command: |
+            refreshenv && mix test --warnings-as-errors
 
 workflows:
   version: 2
@@ -9,3 +43,4 @@ workflows:
       - elixir/build_test
       - elixir/test
       - elixir/lint
+      - windows_test
