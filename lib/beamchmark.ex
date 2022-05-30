@@ -1,6 +1,6 @@
 defmodule Beamchmark do
   @moduledoc """
-  Top level module providing `Beamchmark.run/2` API.
+  Top level module providing `Beamchmark.run/2` and `Beamchmark.run_attached/2` API.
 
   `#{inspect(__MODULE__)}` measures EVM performance while it is running user `#{inspect(__MODULE__)}.Scenario`.
 
@@ -36,23 +36,26 @@ defmodule Beamchmark do
   * context switches - total context switches number
   """
 
+  alias Beamchmark.Suite.Configuration
   alias Beamchmark.Utils
 
-  @default_duration_s 60
-  @default_cpu_interval_ms 1000
-  @default_delay_s 0
-  @default_formatter Beamchmark.Formatters.Console
-  @default_output_dir Path.join([System.tmp_dir!(), "beamchmark"])
-  @default_compare true
+  @default_configuration %Beamchmark.Suite.Configuration{
+    duration: 60,
+    cpu_interval: 1000,
+    delay: 0,
+    formatters: [Beamchmark.Formatters.Console],
+    output_dir: Path.join([System.tmp_dir!(), "beamchmark"]),
+    compare?: true
+  }
 
   @typedoc """
   Configuration for `#{inspect(__MODULE__)}`.
   * `name` - name of the benchmark. It can be used by formatters.
-  * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration_s}` seconds.
-  * `cpu_interval` - time in milliseconds `#{inspect(__MODULE__)}` will be benchmarking cpu usage. Defaults to `#{@default_cpu_interval_ms}` milliseconds. Needs to be greater than or equal to `interfere_timeout`.
-  * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay_s}` seconds.
-  * `formatters` - list of formatters that will be applied to the result. By default contains only `#{inspect(@default_formatter)}`.
-  * `compare?` - boolean indicating whether formatters should compare results for given scenario with the previous one. Defaults to `#{inspect(@default_compare)}.`
+  * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_configuration.duration}` seconds.
+  * `cpu_interval` - time in milliseconds `#{inspect(__MODULE__)}` will be benchmarking cpu usage. Defaults to `#{@default_configuration.cpu_interval}` milliseconds. Needs to be greater than or equal to `interfere_timeout`.
+  * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_configuration.delay}` seconds.
+  * `formatters` - list of formatters that will be applied to the result. By default contains only `#{inspect(@default_configuration.formatters)}`.
+  * `compare?` - boolean indicating whether formatters should compare results for given scenario with the previous one. Defaults to `#{inspect(@default_configuration.compare?)}.`
   * `output_dir` - directory where results of benchmarking will be saved. Defaults to "`beamchmark`" directory under location provided by `System.tmp_dir!/0`.
   """
   @type options_t() :: [
@@ -73,7 +76,7 @@ defmodule Beamchmark do
   """
   @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok
   def run(scenario, opts \\ []) do
-    config = get_suite_config(opts)
+    config = Configuration.get_configuration(opts, @default_configuration)
 
     scenario
     |> Beamchmark.Suite.init(config)
@@ -86,7 +89,7 @@ defmodule Beamchmark do
 
   @spec run_attached(atom(), options_t()) :: :ok
   def run_attached(node_name, opts \\ []) do
-    config = get_suite_config(opts)
+    config = Configuration.get_configuration(opts, @default_configuration)
 
     Node.start(Utils.get_random_node_name(5), :shortnames)
 
@@ -101,18 +104,6 @@ defmodule Beamchmark do
       {:DOWN, ^ref, _process, _object, _reason} ->
         :ok
     end
-  end
-
-  defp get_suite_config(opts) do
-    %Beamchmark.Suite.Configuration{
-      name: Keyword.get(opts, :name),
-      duration: Keyword.get(opts, :duration, @default_duration_s),
-      cpu_interval: Keyword.get(opts, :cpu_interval, @default_cpu_interval_ms),
-      delay: Keyword.get(opts, :delay, @default_delay_s),
-      formatters: Keyword.get(opts, :formatters, [@default_formatter]),
-      compare?: Keyword.get(opts, :compare?, @default_compare),
-      output_dir: Keyword.get(opts, :output_dir, @default_output_dir) |> Path.expand()
-    }
   end
 
   @spec run_suite_attached(Beamchmark.Suite.Configuration.t()) :: Beamchmark.Suite.t()
