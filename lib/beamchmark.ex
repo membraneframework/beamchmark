@@ -36,6 +36,8 @@ defmodule Beamchmark do
   * context switches - total context switches number
   """
 
+  alias Beamchmark.Utils
+
   @default_duration_s 60
   @default_cpu_interval_ms 1000
   @default_delay_s 0
@@ -71,15 +73,7 @@ defmodule Beamchmark do
   """
   @spec run(Beamchmark.Scenario.t(), options_t()) :: :ok
   def run(scenario, opts \\ []) do
-    config = %Beamchmark.Suite.Configuration{
-      name: Keyword.get(opts, :name),
-      duration: Keyword.get(opts, :duration, @default_duration_s),
-      cpu_interval: Keyword.get(opts, :cpu_interval, @default_cpu_interval_ms),
-      delay: Keyword.get(opts, :delay, @default_delay_s),
-      formatters: Keyword.get(opts, :formatters, [@default_formatter]),
-      compare?: Keyword.get(opts, :compare?, @default_compare),
-      output_dir: Keyword.get(opts, :output_dir, @default_output_dir) |> Path.expand()
-    }
+    config = get_suite_config(opts)
 
     scenario
     |> Beamchmark.Suite.init(config)
@@ -88,5 +82,44 @@ defmodule Beamchmark do
     |> tap(fn suite -> :ok = Beamchmark.Formatter.output(suite) end)
 
     :ok
+  end
+
+  @spec run_attached(atom(), options_t()) :: :ok
+  def run_attached(node_name, opts \\ []) do
+    config = get_suite_config(opts)
+
+    Node.start(Utils.get_random_node_name(5), :shortnames)
+
+    unless Node.connect(node_name) == true do
+      raise "Failed to connect to #{node_name} or the node is not alive."
+    end
+
+    pid = Node.spawn(node_name, __MODULE__, :run_suite_attached, [config])
+    ref = Process.monitor(pid)
+
+    receive do
+      {:DOWN, ^ref, _process, _object, _reason} ->
+        :ok
+    end
+  end
+
+  defp get_suite_config(opts) do
+    %Beamchmark.Suite.Configuration{
+      name: Keyword.get(opts, :name),
+      duration: Keyword.get(opts, :duration, @default_duration_s),
+      cpu_interval: Keyword.get(opts, :cpu_interval, @default_cpu_interval_ms),
+      delay: Keyword.get(opts, :delay, @default_delay_s),
+      formatters: Keyword.get(opts, :formatters, [@default_formatter]),
+      compare?: Keyword.get(opts, :compare?, @default_compare),
+      output_dir: Keyword.get(opts, :output_dir, @default_output_dir) |> Path.expand()
+    }
+  end
+
+  @spec run_suite_attached(Beamchmark.Suite.Configuration.t()) :: Beamchmark.Suite.t()
+  def run_suite_attached(config) do
+    Beamchmark.Suite.init(config)
+    |> Beamchmark.Suite.run_attached()
+    |> tap(fn suite -> :ok = Beamchmark.Suite.save(suite) end)
+    |> tap(fn suite -> :ok = Beamchmark.Formatter.output(suite) end)
   end
 end

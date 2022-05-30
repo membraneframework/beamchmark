@@ -12,7 +12,7 @@ defmodule Beamchmark.Suite do
   alias __MODULE__.{Configuration, SystemInfo, Measurements}
 
   @type t :: %__MODULE__{
-          scenario: Scenario.t(),
+          scenario: Scenario.t() | nil,
           configuration: Configuration.t(),
           system_info: SystemInfo.t(),
           measurements: Measurements.t() | nil
@@ -28,6 +28,16 @@ defmodule Beamchmark.Suite do
 
   @suite_filename "suite"
   @old_suite_filename "suite_old"
+
+  @spec init(Configuration.t()) :: t()
+  def init(%Configuration{} = configuration) do
+    %__MODULE__{
+      scenario: nil,
+      configuration: configuration,
+      system_info: SystemInfo.init(),
+      measurements: nil
+    }
+  end
 
   @spec init(Scenario.t(), Configuration.t()) :: t()
   def init(scenario, %Configuration{} = configuration) do
@@ -75,6 +85,17 @@ defmodule Beamchmark.Suite do
       Consider decreasing duration/delay or making the scenario run longer to get more accurate results.
       """)
     end
+
+    %__MODULE__{suite | measurements: measurements}
+  end
+
+  @spec run_attached(t()) :: t()
+  def run_attached(%__MODULE__{configuration: config} = suite) do
+    Mix.shell().info("Waiting #{inspect(config.delay)} seconds...")
+    Process.sleep(:timer.seconds(config.delay))
+
+    Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
+    measurements = Measurements.gather(config.duration, config.cpu_interval)
 
     %__MODULE__{suite | measurements: measurements}
   end

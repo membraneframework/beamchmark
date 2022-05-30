@@ -14,4 +14,15 @@ defmodule Beamchmark.Utils do
       _other -> :Linux
     end
   end
+
+  @spec get_random_node_name(non_neg_integer()) :: atom()
+  def get_random_node_name(length) do
+    random_digits =
+      Enum.reduce(1..length, [], fn _i, acc ->
+        [Enum.random(1..9) | acc]
+      end)
+      |> Enum.join("")
+
+    ("beamchmark" <> random_digits <> "@localhost") |> String.to_atom()
+  end
 end
