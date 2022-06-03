@@ -9,8 +9,11 @@
 <div id="normalScheduler"></div>
 <div id="cpuScheduler"></div>
 <div id="ioScheduler"></div>
+<h3>CPU utilization</h3>
 <div id="average_cpu_usage"></div>
 <div id="by_core_cpu_usage"></div>
+<h3>Memory utilization</h3>
+<div id="memory_usage"></div>
 <script>
   <% has_base = not is_nil(base_measurements) %>
   let indicatorConfig =  {
@@ -252,7 +255,7 @@
       {
         title: "Average CPU Usage",
         xaxis: {
-          title: { text: "Time" },
+          title: { text: "Time[s]" },
           },
         yaxis: {
           title: { text: "CPU Usage (all cores) [%]"}
@@ -291,10 +294,65 @@
       {
         title: "CPU Usage by core",
         xaxis: {
-          title: { text: "Time" },
+          title: { text: "Time[s]" },
           },
         yaxis: {
           title: { text: "CPU Usage by core [%]"}
+          }
+      },
+      plotlyConfig
+    );
+
+    <%
+     div_id = "memory_usage"
+     formatted_new = format_memory_usage(new_measurements.memory_info.memory_snapshots)
+     %>
+    let <%= div_id %> = [
+      <%= if has_base do %>
+      <% formatted_base = format_memory_usage(base_measurements.memory_info.memory_snapshots) %>
+      {
+        name: "base",
+          mode: 'lines+markers',
+          marker: {
+            color: "#451F55",
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= formatted_base.memory_usage %>],
+        x: [<%= formatted_base.time %>],
+      },
+      <% end %>
+      {
+        name: "new",
+          mode: 'lines+markers',
+          marker: {
+            color: "#E54F6D",
+            opacity: 0.8,
+            line: {
+              color: "#22162B",
+              width: 1.5
+            }
+          },
+        type: 'scatter',
+        y: [<%= formatted_new.memory_usage %>],
+        x: [<%= formatted_new.time %>],
+      }
+    ];
+
+    Plotly.newPlot(
+      "<%= div_id %>",
+      <%= div_id %>,
+      {
+        title: "Average memory Usage",
+        xaxis: {
+          title: { text: "Time[s]" },
+          },
+        yaxis: {
+          title: { text: "Memory Usage [B]"}
           }
       },
       plotlyConfig

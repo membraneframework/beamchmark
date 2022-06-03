@@ -45,6 +45,8 @@ defmodule Beamchmark.Suite.Measurements.MemoryInfo do
     %__MODULE__{memory_snapshots: memory_snapshots, average: average}
   end
 
+  @spec diff(__MODULE__.t(), __MODULE__.t()) ::
+          Beamchmark.Suite.Measurements.MemoryInfo.t()
   def diff(base, new) do
     average_diff =
       Enum.reduce(Map.keys(base.average), %{}, fn mem_type, average ->
