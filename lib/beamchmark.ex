@@ -36,6 +36,7 @@ defmodule Beamchmark do
   * context switches - total context switches number
   """
 
+  alias Beamchmark.Scenario.EmptyScenario
   alias Beamchmark.Suite.Configuration
   alias Beamchmark.Utils
 
@@ -45,7 +46,8 @@ defmodule Beamchmark do
     delay: 0,
     formatters: [Beamchmark.Formatters.Console],
     output_dir: Path.join([System.tmp_dir!(), "beamchmark"]),
-    compare?: true
+    compare?: true,
+    attached?: false
   }
 
   @typedoc """
@@ -89,28 +91,18 @@ defmodule Beamchmark do
 
   @spec run_attached(atom(), options_t()) :: :ok
   def run_attached(node_name, opts \\ []) do
-    config = Configuration.get_configuration(opts, @default_configuration)
-
     Node.start(Utils.get_random_node_name(5), :shortnames)
 
     unless Node.connect(node_name) == true do
       raise "Failed to connect to #{node_name} or the node is not alive."
     end
 
-    pid = Node.spawn(node_name, __MODULE__, :run_suite_attached, [config])
+    pid = Node.spawn(node_name, __MODULE__, :run, [EmptyScenario, opts ++ [attached?: true]])
     ref = Process.monitor(pid)
 
     receive do
       {:DOWN, ^ref, _process, _object, _reason} ->
         :ok
     end
-  end
-
-  @spec run_suite_attached(Beamchmark.Suite.Configuration.t()) :: Beamchmark.Suite.t()
-  def run_suite_attached(config) do
-    Beamchmark.Suite.init(config)
-    |> Beamchmark.Suite.run_attached()
-    |> tap(fn suite -> :ok = Beamchmark.Suite.save(suite) end)
-    |> tap(fn suite -> :ok = Beamchmark.Formatter.output(suite) end)
   end
 end

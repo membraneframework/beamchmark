@@ -16,7 +16,8 @@ defmodule TestUtils do
       cpu_interval: Keyword.get(opts, :cpu_interval, 1000),
       formatters: Keyword.get(opts, :formatters, []),
       compare?: Keyword.get(opts, :compare?, false),
-      output_dir: Keyword.get(opts, :output_dir, temporary_dir(__MODULE__))
+      output_dir: Keyword.get(opts, :output_dir, temporary_dir(__MODULE__)),
+      attached?: Keyword.get(opts, :attached?, false)
     }
 
     scenario |> Suite.init(config) |> Suite.run()

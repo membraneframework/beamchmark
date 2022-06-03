@@ -69,7 +69,7 @@ defmodule Beamchmark.Suite do
     Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
     measurements = Measurements.gather(config.duration, config.cpu_interval)
 
-    if Process.alive?(task.pid) do
+    if Process.alive?(task.pid) || config.attached? do
       Mix.shell().info("Benchmarking finished. Stopping scenario.")
 
       case Task.shutdown(task, :brutal_kill) do
@@ -85,17 +85,6 @@ defmodule Beamchmark.Suite do
       Consider decreasing duration/delay or making the scenario run longer to get more accurate results.
       """)
     end
-
-    %__MODULE__{suite | measurements: measurements}
-  end
-
-  @spec run_attached(t()) :: t()
-  def run_attached(%__MODULE__{configuration: config} = suite) do
-    Mix.shell().info("Waiting #{inspect(config.delay)} seconds...")
-    Process.sleep(:timer.seconds(config.delay))
-
-    Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
-    measurements = Measurements.gather(config.duration, config.cpu_interval)
 
     %__MODULE__{suite | measurements: measurements}
   end
