@@ -1,6 +1,11 @@
 defmodule Beamchmark.Suite.Mem.MemoryTask do
   @moduledoc """
-
+  This module contains the memory benchmarking task.
+  Measurements are performed using [`:erlang.memory/0`](https://www.erlang.org/doc/man/erlang.html#memory-0)
+  Run example:
+  ```
+  MemoryTask.start_link()
+  ```
   """
   use Task
 
@@ -15,7 +20,7 @@ defmodule Beamchmark.Suite.Mem.MemoryTask do
 
   @spec run_poll(number(), number()) :: {:ok, MemoryInfo.t()}
   defp run_poll(mem_interval, duration) do
-    iterations_number = trunc(duration / mem_interval) |> IO.inspect()
+    iterations_number = trunc(duration / mem_interval)
 
     memory_snapshots =
       Enum.reduce(0..(iterations_number - 1), [], fn _x, memory_snapshots ->

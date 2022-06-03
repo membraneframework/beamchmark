@@ -1,6 +1,6 @@
 defmodule Beamchmark.Suite.Measurements.MemoryInfo do
   @moduledoc """
-
+  Module representing statistics about memory usage.
   """
 
   @type bytes_t :: non_neg_integer
