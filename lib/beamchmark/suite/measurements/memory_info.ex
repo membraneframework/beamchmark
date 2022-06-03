@@ -18,7 +18,7 @@ defmodule Beamchmark.Suite.Measurements.MemoryInfo do
         }
 
   @type t :: %__MODULE__{
-          memory_snapshots: [memory_snapshot_t()],
+          memory_snapshots: [memory_snapshot_t()] | nil,
           average: memory_snapshot_t()
         }
 
@@ -43,5 +43,21 @@ defmodule Beamchmark.Suite.Measurements.MemoryInfo do
       end)
 
     %__MODULE__{memory_snapshots: memory_snapshots, average: average}
+  end
+
+  def diff(base, new) do
+    average_diff =
+      Enum.reduce(Map.keys(base.average), %{}, fn mem_type, average ->
+        Map.put(
+          average,
+          mem_type,
+          Map.get(new.average, mem_type) - Map.get(base.average, mem_type)
+        )
+      end)
+
+    %__MODULE__{
+      memory_snapshots: nil,
+      average: average_diff
+    }
   end
 end

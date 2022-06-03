@@ -6,8 +6,8 @@ defmodule Beamchmark.Formatters.Utils do
   @doc """
   Takes memory in bytes and returns it as human-readable string.
   """
-  @spec format_memory(pos_integer() | :unknown) :: String.t()
-  def format_memory(mem) when is_integer(mem) do
+  @spec format_memory(integer() | :unknown) :: String.t()
+  def format_memory(mem) when is_integer(mem) and mem >= 0 do
     log_mem = Math.log(mem, 1024)
 
     cond do
@@ -17,6 +17,10 @@ defmodule Beamchmark.Formatters.Utils do
       log_mem >= 1 -> "#{div(mem, Math.pow(1024, 1))} KB"
       true -> "#{mem} B"
     end
+  end
+
+  def format_memory(mem) when is_integer(mem) and mem < 0 do
+    "-" <> format_memory(-mem)
   end
 
   def format_memory(:unknown) do
