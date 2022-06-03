@@ -4,8 +4,10 @@ defmodule Beamchmark.Suite.Measurements do
   """
 
   alias __MODULE__.CpuInfo
+  alias __MODULE__.MemoryInfo
   alias __MODULE__.SchedulerInfo
   alias Beamchmark.Suite.CPU.CpuTask
+  alias Beamchmark.Suite.Mem.MemoryTask
 
   @type reductions_t() :: non_neg_integer()
   @type context_switches_t() :: non_neg_integer()
@@ -13,6 +15,7 @@ defmodule Beamchmark.Suite.Measurements do
   @type t :: %__MODULE__{
           scheduler_info: SchedulerInfo.t(),
           cpu_info: CpuInfo.t(),
+          memory_info: MemoryInfo.t(),
           reductions: reductions_t(),
           context_switches: context_switches_t()
         }
@@ -26,14 +29,16 @@ defmodule Beamchmark.Suite.Measurements do
     :scheduler_info,
     :reductions,
     :context_switches,
-    :cpu_info
+    :cpu_info,
+    :memory_info
   ]
 
   @spec gather(pos_integer(), pos_integer()) :: t()
-  def gather(duration, cpu_interval) do
+  def gather(duration, sampling_interval) do
     sample = :scheduler.sample_all()
 
-    cpu_task = CpuTask.start_link(cpu_interval, duration * 1000)
+    cpu_task = CpuTask.start_link(sampling_interval, duration * 1000)
+    memory_task = MemoryTask.start_link(sampling_interval, duration * 1000)
 
     Process.sleep(:timer.seconds(duration))
 
@@ -48,12 +53,14 @@ defmodule Beamchmark.Suite.Measurements do
     {context_switches, 0} = :erlang.statistics(:context_switches)
 
     {:ok, cpu_info} = Task.await(cpu_task, :infinity)
+    {:ok, memory_info} = Task.await(memory_task, :infinity)
 
     %__MODULE__{
       scheduler_info: scheduler_info,
       reductions: reductions,
       context_switches: context_switches,
-      cpu_info: cpu_info
+      cpu_info: cpu_info,
+      memory_info: memory_info
     }
   end
 

@@ -37,7 +37,7 @@ defmodule Beamchmark do
   """
 
   @default_duration_s 60
-  @default_cpu_interval_ms 1000
+  @default_sampling_interval_ms 1000
   @default_delay_s 0
   @default_formatter Beamchmark.Formatters.Console
   @default_output_dir Path.join([System.tmp_dir!(), "beamchmark"])
@@ -47,7 +47,7 @@ defmodule Beamchmark do
   Configuration for `#{inspect(__MODULE__)}`.
   * `name` - name of the benchmark. It can be used by formatters.
   * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_duration_s}` seconds.
-  * `cpu_interval` - time in milliseconds `#{inspect(__MODULE__)}` will be benchmarking cpu usage. Defaults to `#{@default_cpu_interval_ms}` milliseconds. Needs to be greater than or equal to `interfere_timeout`.
+  * `sampling_interval` - time in milliseconds `#{inspect(__MODULE__)}` will be benchmarking cpu usage. Defaults to `#{@default_sampling_interval_ms}` milliseconds. Needs to be greater than or equal to `interfere_timeout`.
   * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_delay_s}` seconds.
   * `formatters` - list of formatters that will be applied to the result. By default contains only `#{inspect(@default_formatter)}`.
   * `compare?` - boolean indicating whether formatters should compare results for given scenario with the previous one. Defaults to `#{inspect(@default_compare)}.`
@@ -56,7 +56,7 @@ defmodule Beamchmark do
   @type options_t() :: [
           name: String.t(),
           duration: pos_integer(),
-          cpu_interval: pos_integer(),
+          sampling_interval: pos_integer(),
           delay: non_neg_integer(),
           formatters: [Beamchmark.Formatter.t()],
           compare?: boolean(),
@@ -74,7 +74,7 @@ defmodule Beamchmark do
     config = %Beamchmark.Suite.Configuration{
       name: Keyword.get(opts, :name),
       duration: Keyword.get(opts, :duration, @default_duration_s),
-      cpu_interval: Keyword.get(opts, :cpu_interval, @default_cpu_interval_ms),
+      sampling_interval: Keyword.get(opts, :sampling_interval, @default_sampling_interval_ms),
       delay: Keyword.get(opts, :delay, @default_delay_s),
       formatters: Keyword.get(opts, :formatters, [@default_formatter]),
       compare?: Keyword.get(opts, :compare?, @default_compare),

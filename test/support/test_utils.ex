@@ -13,7 +13,7 @@ defmodule TestUtils do
     config = %Suite.Configuration{
       duration: Keyword.get(opts, :duration, 1),
       delay: Keyword.get(opts, :delay, 0),
-      cpu_interval: Keyword.get(opts, :cpu_interval, 1000),
+      sampling_interval: Keyword.get(opts, :sampling_interval, 1000),
       formatters: Keyword.get(opts, :formatters, []),
       compare?: Keyword.get(opts, :compare?, false),
       output_dir: Keyword.get(opts, :output_dir, temporary_dir(__MODULE__))
