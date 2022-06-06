@@ -1,4 +1,4 @@
-defmodule Beamchmark.Suite.Mem.MemoryTask do
+defmodule Beamchmark.Suite.Memory.MemoryTask do
   @moduledoc """
   This module contains the memory benchmarking task.
   Measurements are performed using [`:erlang.memory/0`](https://www.erlang.org/doc/man/erlang.html#memory-0)

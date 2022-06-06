@@ -1,7 +1,7 @@
-defmodule MemTaskTest do
+defmodule MemoryTaskTest do
   use ExUnit.Case
 
-  alias Beamchmark.Suite.Mem.MemoryTask
+  alias Beamchmark.Suite.Memory.MemoryTask
 
   test("MemoryTask.start_link/2 runs properly") do
     mem_interval = 100

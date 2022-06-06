@@ -7,7 +7,7 @@ defmodule Beamchmark.Suite.Measurements do
   alias __MODULE__.MemoryInfo
   alias __MODULE__.SchedulerInfo
   alias Beamchmark.Suite.CPU.CpuTask
-  alias Beamchmark.Suite.Mem.MemoryTask
+  alias Beamchmark.Suite.Memory.MemoryTask
 
   @type reductions_t() :: non_neg_integer()
   @type context_switches_t() :: non_neg_integer()
