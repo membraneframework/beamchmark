@@ -57,7 +57,9 @@ defmodule Beamchmark.Suite do
     Process.sleep(:timer.seconds(config.delay))
 
     Mix.shell().info("Benchmarking for #{inspect(config.duration)} seconds...")
-    measurements = Measurements.gather(config.duration, config.sampling_interval)
+
+    measurements =
+      Measurements.gather(config.duration, config.cpu_interval, config.memory_interval)
 
     if Process.alive?(task.pid) do
       Mix.shell().info("Benchmarking finished. Stopping scenario.")

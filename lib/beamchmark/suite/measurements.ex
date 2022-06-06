@@ -33,12 +33,12 @@ defmodule Beamchmark.Suite.Measurements do
     :memory_info
   ]
 
-  @spec gather(pos_integer(), pos_integer()) :: t()
-  def gather(duration, sampling_interval) do
+  @spec gather(pos_integer(), pos_integer(), pos_integer()) :: t()
+  def gather(duration, cpu_interval, memory_interval) do
     sample = :scheduler.sample_all()
 
-    cpu_task = CpuTask.start_link(sampling_interval, duration * 1000)
-    memory_task = MemoryTask.start_link(sampling_interval, duration * 1000)
+    cpu_task = CpuTask.start_link(cpu_interval, duration * 1000)
+    memory_task = MemoryTask.start_link(memory_interval, duration * 1000)
 
     Process.sleep(:timer.seconds(duration))
 
