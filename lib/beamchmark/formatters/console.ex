@@ -82,7 +82,7 @@ defmodule Beamchmark.Formatters.Console do
     #{format_cpu_by_core(measurements.cpu_info.average_by_core)}
 
     #{entry_header("Memory usage")}
-    #{format_numbers(measurements.memory_info.average.total)}
+    #{Utils.format_memory(measurements.memory_info.average.total, 2)}
     """
   end
 
@@ -127,7 +127,7 @@ defmodule Beamchmark.Formatters.Console do
     memory_diff_percent = Math.percent_diff(memory_old, memory_average)
     color = get_color(memory_average_diff)
 
-    "#{Utils.format_memory(memory_average)} #{color} #{Utils.format_memory(memory_average_diff)} #{format_numbers(memory_diff_percent)}#{if memory_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
+    "#{Utils.format_memory(memory_average, 2)} #{color} #{Utils.format_memory(memory_average_diff, 2)} #{format_numbers(memory_diff_percent)}#{if memory_diff_percent != :nan, do: "%"}#{IO.ANSI.reset()}"
   end
 
   defp format_scheduler_info(%Measurements.SchedulerInfo{} = scheduler_info) do
