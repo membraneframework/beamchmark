@@ -48,7 +48,7 @@ To run an example of Beamchmark in attached mode first start the node, which per
 ```bash
 cd examples/attached
 mix deps.get
-elixir --sname counter@localhost -S mix run --no-deps-check start_counter.exs
+elixir --sname counter@localhost -S mix run start_counter.exs
 ```
 The node will be visible under `counter@localhost` name.
 
