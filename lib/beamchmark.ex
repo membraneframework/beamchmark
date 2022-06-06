@@ -38,7 +38,6 @@ defmodule Beamchmark do
 
   alias Beamchmark.Scenario.EmptyScenario
   alias Beamchmark.Suite.Configuration
-  alias Beamchmark.Utils
 
   @default_configuration %Beamchmark.Suite.Configuration{
     duration: 60,
@@ -89,9 +88,15 @@ defmodule Beamchmark do
     :ok
   end
 
-  @spec run_attached(atom(), options_t()) :: :ok
+  @doc """
+  Executes `Beamchmark.run/2` on a given node.
+
+  This function can be used to measure performance of an already running node.
+  The node which we are connecting to has to be a distributed node.
+  """
+  @spec run_attached(node(), options_t()) :: :ok
   def run_attached(node_name, opts \\ []) do
-    Node.start(Utils.get_random_node_name(5), :shortnames)
+    Node.start(:beamchmark@localhost, :shortnames)
 
     unless Node.connect(node_name) == true do
       raise "Failed to connect to #{node_name} or the node is not alive."

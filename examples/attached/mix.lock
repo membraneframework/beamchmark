@@ -1,0 +1,5 @@
+%{
+  "beamchmark": {:git, "https://github.com/membraneframework/beamchmark.git", "e3227dfe9c05363f61183013535a440db4228bf1", [branch: "attach_beamchmark_to_running_beam"]},
+  "bunch": {:hex, :bunch, "1.3.1", "f8fe80042f9eb474ef2801ae2c9372f9b13d11e7053265dcfc24b9d912e3750b", [:mix], [], "hexpm", "00e21b16ff9bb698b728a01a2fc4b3bf7fc0e87c4bb9c6e4a442324aa8c5e567"},
+  "math": {:hex, :math, "0.7.0", "12af548c3892abf939a2e242216c3e7cbfb65b9b2fe0d872d05c6fb609f8127b", [:mix], [], "hexpm", "7987af97a0c6b58ad9db43eb5252a49fc1dfe1f6d98f17da9282e297f594ebc2"},
+}
