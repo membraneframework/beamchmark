@@ -34,9 +34,9 @@ defmodule Beamchmark.Suite.Measurements.MemoryInfo do
     average =
       Enum.reduce(mem_types, %{}, fn mem_type, average ->
         mem_type_avg =
-          Enum.reduce(memory_snapshots, 0, fn snapshot, sum ->
-            sum + Map.get(snapshot, mem_type)
-          end)
+          memory_snapshots
+          |> Enum.map(&Map.get(&1, mem_type))
+          |> Enum.sum()
           |> div(length(memory_snapshots))
 
         Map.put(average, mem_type, mem_type_avg)

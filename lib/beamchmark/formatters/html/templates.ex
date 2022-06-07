@@ -106,11 +106,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
     %{
       memory_usage:
-        Enum.map_join(memory_snapshots, ", ", fn %{
-                                                   total: total_bytes
-                                                 } ->
-          total_bytes
-        end),
+        Enum.map_join(memory_snapshots, ", ", fn %{total: total_bytes} -> total_bytes end),
       time: Enum.map_join(1..length(memory_snapshots), ", ", fn el -> el end)
     }
   end

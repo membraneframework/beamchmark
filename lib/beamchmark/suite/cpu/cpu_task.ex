@@ -6,10 +6,6 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     - user
     - nice_user (low priority use mode)
     - kernel
-  Run example:
-  ```
-  CpuTask.start_link()
-  ```
   """
   use Task
 
@@ -65,10 +61,9 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     end
 
     cpu_snapshots =
-      Enum.reduce(0..(iterations_number - 1), [], fn _x, cpu_snapshots ->
-        cpu_snapshots = [cpu_snapshot() | cpu_snapshots]
+      Enum.map(0..(iterations_number - 1), fn _x ->
         Process.sleep(cpu_interval)
-        cpu_snapshots
+        cpu_snapshot()
       end)
 
     {:ok, CpuInfo.from_cpu_snapshots(cpu_snapshots)}
