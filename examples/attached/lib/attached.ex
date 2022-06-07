@@ -1,7 +1,5 @@
 defmodule Attached do
-  @moduledoc """
-  Documentation for `Attached`.
-  """
+  @moduledoc false
   @startvalue 10000
 
   def count(number \\ @startvalue)

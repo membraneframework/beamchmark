@@ -32,7 +32,7 @@ end
 
 You create a test scenario by adopting `Beamchmark.Scenario` behaviour in a module. It has to implement `run()` function, which will execute for benchmarking.
 
-The examples of using `Scenario` are located in `examples` directory.
+The examples of using `Scenario` are located in the `examples` directory.
 To run one of them, simply use the following command: 
 
 ```bash
