@@ -34,13 +34,13 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     iterations_number = trunc(duration / cpu_interval)
     pid = self()
 
-    spawn_snapshot = fn _it_num ->
-      spawn(fn -> cpu_snapshot_windows(pid) end)
+    spawn_snapshot = fn iteration ->
+      spawn(fn -> cpu_snapshot_windows(pid, iteration * cpu_interval / 1000) end)
       Process.sleep(cpu_interval)
     end
 
     Task.async(fn ->
-      Enum.each(0..(iterations_number - 1), spawn_snapshot)
+      Enum.each(1..iterations_number, spawn_snapshot)
     end)
 
     cpu_snapshots = receive_snapshots(iterations_number)
@@ -61,9 +61,9 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     end
 
     cpu_snapshots =
-      Enum.map(0..(iterations_number - 1), fn _x ->
+      Enum.map(1..iterations_number, fn iteration ->
         Process.sleep(cpu_interval)
-        cpu_snapshot()
+        cpu_snapshot() |> Map.put(:timestamp, iteration * cpu_interval / 1000)
       end)
 
     {:ok, CpuInfo.from_cpu_snapshots(cpu_snapshots)}
@@ -85,8 +85,8 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
     end
   end
 
-  @spec cpu_snapshot_windows(pid()) :: nil
-  defp cpu_snapshot_windows(pid) do
+  @spec cpu_snapshot_windows(pid(), number()) :: nil
+  defp cpu_snapshot_windows(pid, timestamp) do
     {cpu_util_result, 0} = System.cmd("wmic", ["cpu", "get", "loadpercentage"])
 
     average_all_cores =
@@ -105,13 +105,14 @@ defmodule Beamchmark.Suite.CPU.CpuTask do
       pid,
       {:cpu_snapshot,
        %{
+         timestamp: timestamp,
          cpu_usage: %{},
          average_all_cores: average_all_cores
        }}
     )
   end
 
-  @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
+  # @spec cpu_snapshot() :: CpuInfo.cpu_snapshot_t()
   defp cpu_snapshot() do
     cpu_util_result = :cpu_sup.util([:per_cpu])
 
