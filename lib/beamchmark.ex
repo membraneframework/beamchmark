@@ -42,6 +42,7 @@ defmodule Beamchmark do
   @default_configuration %Beamchmark.Suite.Configuration{
     duration: 60,
     cpu_interval: 1000,
+    memory_interval: 1000,
     delay: 0,
     formatters: [Beamchmark.Formatters.Console],
     output_dir: Path.join([System.tmp_dir!(), "beamchmark"]),
@@ -54,6 +55,7 @@ defmodule Beamchmark do
   * `name` - name of the benchmark. It can be used by formatters.
   * `duration` - time in seconds `#{inspect(__MODULE__)}` will be benchmarking EVM. Defaults to `#{@default_configuration.duration}` seconds.
   * `cpu_interval` - time in milliseconds `#{inspect(__MODULE__)}` will be benchmarking cpu usage. Defaults to `#{@default_configuration.cpu_interval}` milliseconds. Needs to be greater than or equal to `interfere_timeout`.
+  * `memory_interval` - time in milliseconds `#{inspect(__MODULE__)}` will be benchmarking memory usage. Defaults to `#{@default_configuration.memory_interval}` milliseconds. Needs to be greater than or equal to `interfere_timeout`.
   * `delay` - time in seconds `#{inspect(__MODULE__)}` will wait after running scenario and before starting benchmarking. Defaults to `#{@default_configuration.delay}` seconds.
   * `formatters` - list of formatters that will be applied to the result. By default contains only `#{inspect(@default_configuration.formatters)}`.
   * `compare?` - boolean indicating whether formatters should compare results for given scenario with the previous one. Defaults to `#{inspect(@default_configuration.compare?)}.`
@@ -63,6 +65,7 @@ defmodule Beamchmark do
           name: String.t(),
           duration: pos_integer(),
           cpu_interval: pos_integer(),
+          memory_interval: pos_integer(),
           delay: non_neg_integer(),
           formatters: [Beamchmark.Formatter.t()],
           compare?: boolean(),

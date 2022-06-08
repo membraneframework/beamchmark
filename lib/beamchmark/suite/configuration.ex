@@ -10,6 +10,7 @@ defmodule Beamchmark.Suite.Configuration do
           name: String.t() | nil,
           duration: pos_integer(),
           cpu_interval: pos_integer(),
+          memory_interval: pos_integer(),
           delay: non_neg_integer(),
           formatters: [Formatter.t()],
           output_dir: Path.t(),
@@ -20,12 +21,14 @@ defmodule Beamchmark.Suite.Configuration do
   @enforce_keys [
     :duration,
     :cpu_interval,
+    :memory_interval,
     :delay,
     :formatters,
     :compare?,
     :output_dir,
     :attached?
   ]
+
   defstruct @enforce_keys ++ [:name]
 
   @spec get_configuration(Keyword.t(), __MODULE__.t()) :: __MODULE__.t()
@@ -34,6 +37,7 @@ defmodule Beamchmark.Suite.Configuration do
       name: Keyword.get(opts, :name),
       duration: Keyword.get(opts, :duration, default_config.duration),
       cpu_interval: Keyword.get(opts, :cpu_interval, default_config.cpu_interval),
+      memory_interval: Keyword.get(opts, :memory_interval, default_config.memory_interval),
       delay: Keyword.get(opts, :delay, default_config.delay),
       formatters: Keyword.get(opts, :formatters, default_config.formatters),
       compare?: Keyword.get(opts, :compare?, default_config.compare?),

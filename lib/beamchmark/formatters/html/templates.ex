@@ -5,7 +5,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
   alias Beamchmark.Formatters.Utils
   alias Beamchmark.Scenario
-  alias Beamchmark.Suite.Measurements.{CpuInfo, SchedulerInfo}
+  alias Beamchmark.Suite.Measurements.{CpuInfo, MemoryInfo, SchedulerInfo}
 
   EEx.function_from_file(:def, :index, "priv/templates/index.html.eex", [
     :new_suite,
@@ -95,6 +95,19 @@ defmodule Beamchmark.Formatters.HTML.Templates do
       result: Enum.reverse(reversed_result),
       time: Enum.map_join(1..length(cpu_snapshots_reversed), ", ", fn el -> el end),
       cores_number: length(reversed_result)
+    }
+  end
+
+  @spec format_memory_usage([MemoryInfo.memory_snapshot_t()]) :: %{
+          (memory_usage_entry :: atom()) => String.t()
+        }
+  def format_memory_usage(memory_snapshots_reversed) do
+    memory_snapshots = Enum.reverse(memory_snapshots_reversed)
+
+    %{
+      memory_usage:
+        Enum.map_join(memory_snapshots, ", ", fn %{total: total_bytes} -> total_bytes end),
+      time: Enum.map_join(1..length(memory_snapshots), ", ", fn el -> el end)
     }
   end
 
