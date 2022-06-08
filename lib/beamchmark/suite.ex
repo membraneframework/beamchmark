@@ -12,7 +12,7 @@ defmodule Beamchmark.Suite do
   alias __MODULE__.{Configuration, SystemInfo, Measurements}
 
   @type t :: %__MODULE__{
-          scenario: Scenario.t(),
+          scenario: Scenario.t() | nil,
           configuration: Configuration.t(),
           system_info: SystemInfo.t(),
           measurements: Measurements.t() | nil
@@ -28,6 +28,16 @@ defmodule Beamchmark.Suite do
 
   @suite_filename "suite"
   @old_suite_filename "suite_old"
+
+  @spec init(Configuration.t()) :: t()
+  def init(%Configuration{} = configuration) do
+    %__MODULE__{
+      scenario: nil,
+      configuration: configuration,
+      system_info: SystemInfo.init(),
+      measurements: nil
+    }
+  end
 
   @spec init(Scenario.t(), Configuration.t()) :: t()
   def init(scenario, %Configuration{} = configuration) do
@@ -61,7 +71,7 @@ defmodule Beamchmark.Suite do
     measurements =
       Measurements.gather(config.duration, config.cpu_interval, config.memory_interval)
 
-    if Process.alive?(task.pid) do
+    if Process.alive?(task.pid) || config.attached? do
       Mix.shell().info("Benchmarking finished. Stopping scenario.")
 
       case Task.shutdown(task, :brutal_kill) do

@@ -27,10 +27,35 @@ end
 ```
 
 ## Usage
-To run an example, simply use the following command: 
+
+### Running an application using `Beamchmark.Scenario`
+
+You create a test scenario by adopting `Beamchmark.Scenario` behaviour in a module. It has to implement `run()` function, which will execute for benchmarking.
+
+The examples of using `Scenario` are located in the `examples` directory.
+To run one of them, simply use the following command: 
 
 ```bash
 mix run examples/<example_name>.exs
+```
+
+### Running Beamchmark in an attached mode
+
+If you want to measure the performance of an already running BEAM you can run Beamchmark in an attached mode.
+However, it is required that the node on which your application is running is a distributed node and has `Beamchmark` added to its dependencies.
+
+To run an example of Beamchmark in attached mode first start the node, which performance will be measured:
+```bash
+cd examples/attached
+mix deps.get
+elixir --sname counter@localhost -S mix run start_counter.exs
+```
+The node will be visible under `counter@localhost` name.
+
+Now in another terminal you can start the benchmark:
+```bash
+epmd -daemon 
+mix run examples/attached/run_attached.exs
 ```
 
 ## Formatters
