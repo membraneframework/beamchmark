@@ -19,9 +19,11 @@ defmodule Beamchmark.Suite.Memory.MemoryTask do
     iterations_number = trunc(duration / mem_interval)
 
     memory_snapshots =
-      Enum.map(0..(iterations_number - 1), fn _x ->
+      Enum.map(1..iterations_number, fn iteration ->
         Process.sleep(mem_interval)
+
         memory_snapshot()
+        |> Map.put(:timestamp, iteration * mem_interval / 1000)
       end)
 
     {:ok, MemoryInfo.from_memory_snapshots(memory_snapshots)}

@@ -20,6 +20,7 @@ defmodule Beamchmark.Suite.Measurements.CpuInfo do
   """
   @type cpu_snapshot_t ::
           %{
+            timestamp: pos_integer(),
             cpu_usage: %{
               (core_id :: integer()) => usage :: Math.percent_t()
             },

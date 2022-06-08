@@ -6,6 +6,7 @@ defmodule Beamchmark.Suite.Measurements.MemoryInfo do
   @type bytes_t :: non_neg_integer
 
   @type memory_snapshot_t :: %{
+          timestamp: pos_integer(),
           total: bytes_t,
           processes: bytes_t,
           processes_used: bytes_t,
@@ -29,7 +30,7 @@ defmodule Beamchmark.Suite.Measurements.MemoryInfo do
 
   @spec from_memory_snapshots([memory_snapshot_t()]) :: __MODULE__.t()
   def from_memory_snapshots(memory_snapshots) do
-    mem_types = memory_snapshots |> List.first() |> Map.keys()
+    mem_types = memory_snapshots |> List.first() |> Map.keys() |> List.delete(:timestamp)
 
     average =
       Enum.reduce(mem_types, %{}, fn mem_type, average ->

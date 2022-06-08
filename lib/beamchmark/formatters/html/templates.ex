@@ -65,7 +65,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
         Enum.map_join(cpu_snapshots, ", ", fn %{cpu_usage: _cpu_usage, average_all_cores: avg} ->
           format_float(avg)
         end),
-      time: Enum.map_join(1..length(cpu_snapshots), ", ", fn el -> el end)
+      time: Enum.map_join(cpu_snapshots, ", ", & &1.timestamp)
     }
   end
 
@@ -93,7 +93,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
 
     %{
       result: Enum.reverse(reversed_result),
-      time: Enum.map_join(1..length(cpu_snapshots_reversed), ", ", fn el -> el end),
+      time: Enum.map_join(cpu_snapshots_reversed, ", ", & &1.timestamp),
       cores_number: length(reversed_result)
     }
   end
@@ -107,7 +107,7 @@ defmodule Beamchmark.Formatters.HTML.Templates do
     %{
       memory_usage:
         Enum.map_join(memory_snapshots, ", ", fn %{total: total_bytes} -> total_bytes end),
-      time: Enum.map_join(1..length(memory_snapshots), ", ", fn el -> el end)
+      time: Enum.map_join(memory_snapshots, ", ", & &1.timestamp)
     }
   end
 

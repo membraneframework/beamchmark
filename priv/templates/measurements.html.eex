@@ -16,6 +16,10 @@
 <div id="memory_usage"></div>
 <script>
   <% has_base = not is_nil(base_measurements) %>
+
+  <% base_color = "#451F55" %>
+  <% new_color = "#DD7085" %>
+
   let indicatorConfig =  {
     type: "indicator",
     number: { font: { size: 70 } },
@@ -172,7 +176,7 @@
         name: "Base",
         type: "bar",
         marker: {
-          color: "#451F55",
+          color: "<%= base_color %>",
           opacity: 0.8,
           line: {
             color: "#22162B",
@@ -188,10 +192,10 @@
         name: "New",
         type: "bar",
         marker: {
-          color: "#E54F6D",
+          color: "<%= new_color %>",
           opacity: 0.8,
           line: {
-            color: "#451F55",
+            color: "<%= base_color %>",
             width: 1.5
           }
         },
@@ -220,7 +224,7 @@
         name: "base",
           mode: 'lines+markers',
           marker: {
-            color: "#451F55",
+            color: "<%= base_color %>",
             opacity: 0.8,
             line: {
               color: "#22162B",
@@ -236,7 +240,7 @@
         name: "new",
           mode: 'lines+markers',
           marker: {
-            color: "#E54F6D",
+            color: "<%= new_color %>",
             opacity: 0.8,
             line: {
               color: "#22162B",
@@ -314,7 +318,7 @@
         name: "base",
           mode: 'lines+markers',
           marker: {
-            color: "#451F55",
+            color: "<%= base_color %>",
             opacity: 0.8,
             line: {
               color: "#22162B",
@@ -330,7 +334,7 @@
         name: "new",
           mode: 'lines+markers',
           marker: {
-            color: "#E54F6D",
+            color: "<%= new_color %>",
             opacity: 0.8,
             line: {
               color: "#22162B",
@@ -347,12 +351,13 @@
       "<%= div_id %>",
       <%= div_id %>,
       {
-        title: "Average memory Usage",
+        title: "Memory usage",
         xaxis: {
           title: { text: "Time[s]" },
           },
         yaxis: {
-          title: { text: "Memory Usage [B]"}
+          title: { text: "Memory Usage [B]"},
+          tickformat: '.2e'
           }
       },
       plotlyConfig
