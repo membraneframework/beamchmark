@@ -47,7 +47,8 @@ defmodule Beamchmark do
     formatters: [Beamchmark.Formatters.Console],
     output_dir: Path.join([System.tmp_dir!(), "beamchmark"]),
     compare?: true,
-    attached?: false
+    attached?: false,
+    custom_configuration: %{}
   }
 
   @typedoc """

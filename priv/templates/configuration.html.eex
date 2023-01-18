@@ -13,3 +13,22 @@
     </tr>
   </tbody>
 </table>
+
+<br/>
+
+<table>
+  <thead>
+    <tr>
+      <%= for {title, _value} <- configuration.custom_configuration do %>
+        <th><%= title %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <%= for {_title, value} <- configuration.custom_configuration do %>
+        <td><%= value %></td>
+      <% end %>
+    </tr>
+  </tbody>
+</table>
