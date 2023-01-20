@@ -19,7 +19,7 @@ defmodule TestUtils do
       compare?: Keyword.get(opts, :compare?, false),
       output_dir: Keyword.get(opts, :output_dir, temporary_dir(__MODULE__)),
       attached?: Keyword.get(opts, :attached?, false),
-      custom_configuration: Keyword.get(opts, :custom_configuration, %{})
+      metadata: Keyword.get(opts, :metadata, %{})
     }
 
     scenario |> Suite.init(config) |> Suite.run()

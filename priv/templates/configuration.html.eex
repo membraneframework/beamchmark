@@ -19,14 +19,14 @@
 <table>
   <thead>
     <tr>
-      <%= for {title, _value} <- configuration.custom_configuration do %>
+      <%= for {title, _value} <- configuration.metadata do %>
         <th><%= title %></th>
       <% end %>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <%= for {_title, value} <- configuration.custom_configuration do %>
+      <%= for {_title, value} <- configuration.metadata do %>
         <td><%= value %></td>
       <% end %>
     </tr>

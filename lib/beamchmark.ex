@@ -48,7 +48,7 @@ defmodule Beamchmark do
     output_dir: Path.join([System.tmp_dir!(), "beamchmark"]),
     compare?: true,
     attached?: false,
-    custom_configuration: %{}
+    metadata: %{}
   }
 
   @typedoc """

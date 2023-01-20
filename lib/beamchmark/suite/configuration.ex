@@ -16,7 +16,7 @@ defmodule Beamchmark.Suite.Configuration do
           output_dir: Path.t(),
           compare?: boolean(),
           attached?: boolean(),
-          custom_configuration: map()
+          metadata: map()
         }
 
   @enforce_keys [
@@ -28,7 +28,7 @@ defmodule Beamchmark.Suite.Configuration do
     :compare?,
     :output_dir,
     :attached?,
-    :custom_configuration
+    :metadata
   ]
 
   defstruct @enforce_keys ++ [:name]
@@ -45,8 +45,7 @@ defmodule Beamchmark.Suite.Configuration do
       compare?: Keyword.get(opts, :compare?, default_config.compare?),
       output_dir: Keyword.get(opts, :output_dir, default_config.output_dir) |> Path.expand(),
       attached?: Keyword.get(opts, :attached?, default_config.attached?),
-      custom_configuration:
-        Keyword.get(opts, :custom_configuration, default_config.custom_configuration)
+      metadata: Keyword.get(opts, :metadata, default_config.metadata)
     }
   end
 end
