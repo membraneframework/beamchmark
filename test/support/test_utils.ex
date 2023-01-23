@@ -18,7 +18,8 @@ defmodule TestUtils do
       formatters: Keyword.get(opts, :formatters, []),
       compare?: Keyword.get(opts, :compare?, false),
       output_dir: Keyword.get(opts, :output_dir, temporary_dir(__MODULE__)),
-      attached?: Keyword.get(opts, :attached?, false)
+      attached?: Keyword.get(opts, :attached?, false),
+      metadata: Keyword.get(opts, :metadata, %{})
     }
 
     scenario |> Suite.init(config) |> Suite.run()

@@ -29,12 +29,12 @@ jobs:
       - run: 
           name: Get dependencies
           command: |
-            refreshenv && mix local.hex --force && mix deps.get
+            refreshenv && C:\ProgramData\chocolatey\lib\Elixir\tools\bin\mix local.hex --force && C:\ProgramData\chocolatey\lib\Elixir\tools\bin\mix deps.get
 
       - run: 
           name: Run all tests
           command: |
-            refreshenv && mix test --warnings-as-errors
+            refreshenv && C:\ProgramData\chocolatey\lib\Elixir\tools\bin\mix test --warnings-as-errors
 
 workflows:
   version: 2

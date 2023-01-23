@@ -15,7 +15,8 @@ defmodule Beamchmark.Suite.Configuration do
           formatters: [Formatter.t()],
           output_dir: Path.t(),
           compare?: boolean(),
-          attached?: boolean()
+          attached?: boolean(),
+          metadata: map()
         }
 
   @enforce_keys [
@@ -26,7 +27,8 @@ defmodule Beamchmark.Suite.Configuration do
     :formatters,
     :compare?,
     :output_dir,
-    :attached?
+    :attached?,
+    :metadata
   ]
 
   defstruct @enforce_keys ++ [:name]
@@ -42,7 +44,8 @@ defmodule Beamchmark.Suite.Configuration do
       formatters: Keyword.get(opts, :formatters, default_config.formatters),
       compare?: Keyword.get(opts, :compare?, default_config.compare?),
       output_dir: Keyword.get(opts, :output_dir, default_config.output_dir) |> Path.expand(),
-      attached?: Keyword.get(opts, :attached?, default_config.attached?)
+      attached?: Keyword.get(opts, :attached?, default_config.attached?),
+      metadata: Keyword.get(opts, :metadata, default_config.metadata)
     }
   end
 end
