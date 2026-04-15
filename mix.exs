@@ -1,7 +1,7 @@
 defmodule Beamchmark.MixProject do
   use Mix.Project
 
-  @version "1.4.1"
+  @version "1.4.2"
   @github_url "https://github.com/membraneframework/beamchmark"
 
   def project do
@@ -15,14 +15,15 @@ defmodule Beamchmark.MixProject do
       dialyzer: dialyzer(),
 
       # hex
-      description: "Tool for measuring EVM performance",
+      description: "Tool for measuring EVM performance.",
       package: package(),
 
       # docs
       name: "Beamchmark",
       source_url: @github_url,
       homepage_url: "https://membraneframework.org",
-      docs: docs()
+      docs: docs(),
+      aliases: [docs: ["docs", &prepend_llms_links/1]]
     ]
   end
 
@@ -41,7 +42,7 @@ defmodule Beamchmark.MixProject do
       {:math, "~> 0.7.0"},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:credo, "~> 1.6", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false}
     ]
   end
 
@@ -79,4 +80,19 @@ defmodule Beamchmark.MixProject do
       nest_modules_by_prefix: [Beamchmark.Suite, Beamchmark.Formatters]
     ]
   end
+
+defp prepend_llms_links(_) do
+  path = "doc/llms.txt"
+
+  if File.exists?(path) do
+    existing = File.read!(path)
+
+    header =
+      "- [Membrane Core AI Skill](https://hexdocs.pm/membrane_core/skill.md)\n" <>
+        "- [Membrane Core](https://hexdocs.pm/membrane_core/llms.txt)\n\n"
+
+    File.write!(path, header <> existing)
+  end
+end
+
 end
