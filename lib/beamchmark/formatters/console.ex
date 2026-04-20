@@ -6,8 +6,8 @@ defmodule Beamchmark.Formatters.Console do
   @behaviour Beamchmark.Formatter
 
   alias Beamchmark.Formatters.Utils
-  alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
   alias Beamchmark.{Math, Suite}
+  alias Beamchmark.Suite.{Configuration, Measurements, SystemInfo}
 
   @precision 2
 
