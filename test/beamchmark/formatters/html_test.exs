@@ -95,7 +95,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
 
       assert {:ok, statistics} = Task.await(cpu_task, :infinity)
       result = Templates.format_average_cpu_usage(statistics.cpu_snapshots)
-      assert true == not is_nil(result)
+      assert is_map(result)
     end
 
     test "format_cpu_usage_by_core/1 runs and doesn't return nil" do
@@ -107,7 +107,7 @@ defmodule Beamchmark.Formatters.HTMLTest do
 
       assert {:ok, statistics} = Task.await(cpu_task, :infinity)
       result = Templates.format_cpu_usage_by_core(statistics.cpu_snapshots)
-      assert true == not is_nil(result)
+      assert is_map(result)
     end
   end
 end
