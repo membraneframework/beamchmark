@@ -40,7 +40,7 @@ defmodule Beamchmark.MixProject do
       {:bunch, "~> 1.5"},
       {:math, "~> 0.7.0"},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
-      {:credo, "~> 1.6", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: :dev, runtime: false},
       {:ex_doc, "~> 0.27", only: :dev, runtime: false}
     ]
   end
