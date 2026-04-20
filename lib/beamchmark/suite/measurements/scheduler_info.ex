@@ -57,7 +57,7 @@ defmodule Beamchmark.Suite.Measurements.SchedulerInfo do
     total_cpu = typed_total(scheduler_info.cpu)
     total_io = typed_total(scheduler_info.io)
 
-    %__MODULE__{
+    %{
       scheduler_info
       | total_normal: total_normal,
         total_cpu: total_cpu,
