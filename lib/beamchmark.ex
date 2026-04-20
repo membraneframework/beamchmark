@@ -100,7 +100,7 @@ defmodule Beamchmark do
   """
   @spec run_attached(node(), options_t()) :: :ok
   def run_attached(node_name, opts \\ []) do
-    Node.start(:beamchmark@localhost, :shortnames)
+    Node.start(:beamchmark@localhost, name_domain: :shortnames)
 
     unless Node.connect(node_name) == true do
       raise "Failed to connect to #{node_name} or the node is not alive."
