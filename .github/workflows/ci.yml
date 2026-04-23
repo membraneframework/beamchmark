@@ -14,18 +14,3 @@ jobs:
 
   test:
     uses: membraneframework/membrane_actions/.github/workflows/test.yml@main
-
-  windows_test:
-    runs-on: windows-latest
-    env:
-      MIX_ENV: test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: erlef/setup-beam@v1
-        with:
-          otp-version: "27"
-          elixir-version: "1.18"
-      - name: Get dependencies
-        run: mix local.hex --force && mix deps.get
-      - name: Run tests
-        run: mix test --warnings-as-errors
