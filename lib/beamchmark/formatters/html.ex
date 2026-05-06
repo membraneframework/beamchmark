@@ -62,7 +62,7 @@ defmodule Beamchmark.Formatters.HTML do
 
   defp maybe_open_report(path_to_html, true) do
     browser = get_browser()
-    {_, exit_code} = System.cmd(browser, [path_to_html])
+    {_output, exit_code} = System.cmd(browser, [path_to_html])
 
     if exit_code > 0 do
       Mix.shell().error("Failed to open report using \"#{browser}\".")
